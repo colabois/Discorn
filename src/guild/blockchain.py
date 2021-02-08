@@ -20,6 +20,7 @@ class Block:
         self.nonce = nonce
         self.corners = []  # index 0 is coinbase.
         self.header = self.encode_header()
+        self.hash = self.get_hash()
 
     def encode_header(self):
         res = self.version.to_bytes(2, 'big')
@@ -33,8 +34,9 @@ class Block:
     def random_nonce(self):
         self.nonce = os.urandom(64)
 
-    def hash(self):
-        return pycryptonight.cn_slow_hash(self.header, 4)
+    def get_hash(self):
+        self.hash = pycryptonight.cn_slow_hash(self.header, 4)
+        return self.hash
 
 
 class BlockChain(Logger):
@@ -42,6 +44,24 @@ class BlockChain(Logger):
 
     def __init__(self, name='Main'):
         super().__init__(name)
-        self.blocks = []
+        self.block_hashes = []
+        self.blocks = {}
         self.corners = {}
         self.unconfirmed_corners = {}
+
+    def new_head(self, block):
+        self.block_hashes.append(block.hash)
+        self.blocks.update({block.hash: block})
+        self.log(f"New head : [{len(self.blocks)}] - {block.hash.hex()}")
+
+    def get_block_template(self):
+        pass
+
+
+if __name__ == '__main__':
+    chain = BlockChain()
+    genesis = Block()
+    genesis.random_nonce()
+    genesis.encode_header()
+    genesis.get_hash()
+    chain.new_head(genesis)
