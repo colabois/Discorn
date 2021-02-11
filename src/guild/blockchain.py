@@ -14,6 +14,47 @@ def fast_hash(b):
     return pycryptonight.cn_fast_hash(b).hex()
 
 
+class Corner:
+    def __init__(self, flag=-1):
+        self.flag = flag
+        self.payload = b''
+
+    @property
+    def raw(self):
+        res = len(self.payload).to_bytes(2, 'big')
+        res += self.flag.to_bytes(1, 'big')
+        res += self.payload
+        return res
+
+
+class Tx(Corner):
+    def __init__(self, version=0, inputs=None, outputs=None):
+        self.flag = 0
+        self.version = version
+        self.inputs = [] if inputs is None else inputs
+        self.outputs = [] if outputs is None else outputs
+
+
+class Authority:
+    def __init__(self, parent=None):
+        self.parent = parent
+
+
+class PoW(Authority):
+    def __init__(self, parent=None, last_hash=pycryptonight.cn_slow_hash(b''), nonce=0):
+        super().__init__(parent)
+        self.last_hash = last_hash
+        self.nonce = nonce
+
+
+class Event(Corner):
+    def __init__(self, version=0, event_hash=pycryptonight.cn_fast_hash(b''), authority=None):
+        self.flag = 1
+        self.version = version
+        self.event_hash = event_hash
+        self.authority = PoW if authority is None else authority
+
+
 class Block(Logger):
     """Block and header definition."""
 
@@ -38,7 +79,6 @@ class Block(Logger):
         self.coinbase = coinbase
         self._corners = [] if corners is None else corners
         self.merkle_tree = MerkleTree(self.corners, fast_hash)
-        self.header = self.encode_header()
         self.hash = self.get_hash()
 
     @property
@@ -51,14 +91,14 @@ class Block(Logger):
         else:
             self.merkle_tree.extend(new_data)
 
-    def encode_header(self):
+    @property
+    def header(self):
         res = self.version.to_bytes(2, 'big')
         res += self.timestamp.to_bytes(8, 'big')
         res += len(self.corners).to_bytes(3, 'big')
         res += bytes.fromhex(self.merkle_tree.merkle_root)
         res += self.previous_hash
         res += self.nonce
-        self.header = res
         return res
 
     def random_nonce(self):
@@ -69,7 +109,6 @@ class Block(Logger):
         while int.from_bytes(self.get_hash(), 'big') >= (1 << (256 - difficulty)):
             self.log(f"new hash : {self.hash.hex()}")
             self.random_nonce()
-            self.encode_header()
         self.log(f"Mined !! : {self.hash.hex()}")
 
     def get_hash(self):
@@ -103,6 +142,5 @@ if __name__ == '__main__':
     chain = BlockChain()
     genesis = Block(chain, name='Main')
     genesis.random_nonce()
-    genesis.encode_header()
     genesis.get_hash()
     chain.new_head(genesis)
