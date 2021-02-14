@@ -1,5 +1,3 @@
-# TODO: Recode all of this once again.
-
 import pycryptonight
 import ecdsa
 from Crypto.Hash import RIPEMD160
@@ -30,7 +28,7 @@ class SK:
         self._vk = self._sk.verifying_key
         self.vk = VK(self._vk)
         self.address = self.vk.address
-        self.b58 = base58.b58encode(self.address, base58.BITCOIN_ALPHABET)
+        self.b58 = self.vk.b58
 
     def sign(self, data):
         return Signature(self._sk.sign(pycryptonight.cn_fast_hash(data)), self.vk)
@@ -40,17 +38,18 @@ class VK:
     def __init__(self, vk):
         self._vk = vk
         self.string = self._vk.to_string()
-        self.address = get_hash(pycryptonight.cn_fast_hash(self._vk.to_string()), RIPEMD160.new)
+        address = get_hash(pycryptonight.cn_fast_hash(self._vk.to_string()), RIPEMD160.new)
+        self.address = address + pycryptonight.cn_fast_hash(address)[:8]
         self.b58 = base58.b58encode(self.address, base58.BITCOIN_ALPHABET)
 
     def verify(self, signature, data):
         try:
-            return self.vk.verify(signature.signature, pycryptonight.cn_fast_hash(data))
+            return self._vk.verify(signature.signature, pycryptonight.cn_fast_hash(data))
         except ecdsa.keys.BadSignatureError:
             return False
 
 
-class Signature(Logger):
+class Signature:
     def __init__(self, signature, vk):
         self.signature = signature
         self.vk = vk
@@ -58,6 +57,13 @@ class Signature(Logger):
     @property
     def raw(self):
         return self.vk.string + self.signature
+
+    def verify(self, data):
+        return self.vk.verify(self, data)
+
+
+def raw_sig(raw):
+    return Signature(raw[64:], ecdsa.VerifyingKey.from_string(raw[:64], curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256))
 
 
 class Corner:
@@ -97,35 +103,6 @@ class Tx(Corner):
         for signature in self.signatures:
             res += signature.raw
         return res
-
-
-class Authority:
-    def __init__(self, parent=None):
-        self.parent = parent
-
-
-class PoW(Authority):
-    def __init__(self, parent=None, last_hash=pycryptonight.cn_slow_hash(b''), nonce=0):
-        super().__init__(parent)
-        self.last_hash = last_hash
-        self.nonce = nonce
-
-
-class Event(Corner):
-    authority = b''
-
-    def __init__(self, version=0, event_hash=pycryptonight.cn_fast_hash(b'')):
-        self.flag = 1
-        self.version = version
-        self.event_hash = event_hash
-        self.authority_flag = -1
-
-    @property
-    def payload(self):
-        res = self.version.to_bytes(1, 'big')
-        res += self.event_hash
-        res += self.authority_flag(1, 'big')
-        res += self.authority
 
 
 class Block(Logger):
@@ -221,9 +198,34 @@ class BlockChain(Logger):
         return res
 
 
-if __name__ == '__main__':
-    chain = BlockChain()
-    genesis = Block(chain, name='Main')
-    genesis.random_nonce()
-    genesis.get_hash()
-    chain.new_head(genesis)
+class Guild(Logger):
+    def __init__(self, vk=None, sk=None, genesis=None, chain=None, name='Main-Guild'):
+        super().__init__(name)
+        if vk is None:
+            if sk is None:
+                self.sk = SK()
+                self.vk = self.sk.vk
+            else:
+                self.vk = self.sk.vk
+        else:
+            self.vk = vk
+        if chain is None:
+            self.chain = BlockChain()
+            if genesis is None:
+                genesis = Block(self.chain)
+            self.chain.new_head(genesis)
+        else:
+            self.chain = chain
+
+
+class Wallet(Logger):
+    def __init__(self, name='Main-Wallet'):
+        super().__init__(name)
+        self.addresses = []
+        self.corners = []
+        self.guilds = []
+
+    def new_address(self):
+        address = SK()
+        self.addresses.append(address)
+        self.debug(f"New address : {address.b58}")
