@@ -1,6 +1,7 @@
 import asyncio
 import blockchain
 from log import Logger
+import time
 
 
 class Node(Logger):
@@ -8,6 +9,7 @@ class Node(Logger):
         super().__init__(name)
         self.peers = {}
         self.last_id = 0
+        self.server = None
 
     def run(self):
         asyncio.run(self.main())
@@ -21,15 +23,19 @@ class Node(Logger):
             await self.server.serve_forever()
 
     async def inbound(self, reader, writer):
-        p = Peer(reader, writer, node)
+        p = Peer(reader, writer, self)
         await p.in_handler()
+
 
 class Peer(Logger):
     CHUNK_SIZE = 1024
     version = 0
-    p_flags = {0:"hello",
-               }
+    p_flags = {0: "hello",
+               1: "ping",
+               2: "pong",
+               3: "heartbeat"}
     ver = version.to_bytes(1, 'big')
+
     def __init__(self, reader, writer, node):
         self.ip, self.port = writer.get_extra_info('peername')
         super().__init__(f"{self.ip}:{self.port}")
@@ -39,36 +45,43 @@ class Peer(Logger):
         self.node = node
         self.id = self.node.last_id = self.node.last_id + 1
         self.node.peers.update({self.id: self})
-    
+        self.last_ping_id = 0
+        self.last_ping_duration = 0
+        self.pings = {}
+
     async def in_handler(self):
-        self.send()
-        while True:
-            magic = await self.reader.read(2)
-            data = b''
-            while magic == b'\xff\xff':
-                data += await self.reader.read(self.CHUNK_SIZE)
+        try:
+            await self.hello()
+            while True:
                 magic = await self.reader.read(2)
-            data += await self.reader.read(int.from_bytes(magic, 'big'))
-            if magic == b'':
-                break
-            await self.parse(data)
-        self.log("Connection closed.")
-        if self.id in self.node.peers:
-            del self.node.peers[self.id]
-        self.writer.close()
+                data = b''
+                while magic == b'\xff\xff':
+                    data += await self.reader.read(self.CHUNK_SIZE)
+                    magic = await self.reader.read(2)
+                data += await self.reader.read(int.from_bytes(magic, 'big'))
+                if magic == b'':
+                    break
+                await self.parse(data)
+        except:
+            self.log("Connection closed.")
+            if self.id in self.node.peers:
+                del self.node.peers[self.id]
+            self.writer.close()
+            raise
 
     async def send(self, data):
-        chunks = [data[i:i+self.CHUNK_SIZE] for i in range(0,len(data) - self.CHUNK_SIZE, self.CHUNK_SIZE)] + [data[len(data) - self.CHUNK_SIZE:]]
+        data = self.version.to_bytes(2, 'big') + data
+        chunks = [data[i:i + self.CHUNK_SIZE] for i in range(0, len(data) - self.CHUNK_SIZE, self.CHUNK_SIZE)] + [
+            data[len(data) - self.CHUNK_SIZE:]]
         self.debug(chunks)
         for chunk in chunks[:-1]:
-            self.writer.write(b'\xff\xff'+ chunk)
-            self.debug(b'\xff\xff'+ chunk)
+            self.writer.write(b'\xff\xff' + chunk)
+            self.debug(b'\xff\xff' + chunk)
             await self.writer.drain()
         self.writer.write(len(chunks[-1]).to_bytes(2, 'big') + chunks[-1])
         self.debug(len(chunks[-1]).to_bytes(2, 'big') + chunks[-1])
         await self.writer.drain()
-        
-    
+
     async def parse(self, data):
         version = int.from_bytes(data[:1], 'big')
         if version != self.version:
@@ -79,15 +92,37 @@ class Peer(Logger):
             return
         p_flag = int.from_bytes(data[1:3], 'big')
         if p_flag in self.p_flags:
-            await getattr(self, 'parse_'+self.p_flags[p_flag])(data[3:])
+            await getattr(self, 'parse_' + self.p_flags[p_flag])(data[3:])
         else:
             self.error(f"Unknown payload Flag {p_flag}. Closing connection.")
             await self.send(b'Unknown Flag !')
             del self.node.peers[self.id]
             return
-    
+
     async def parse_hello(self, data):
         self.debug("Hello")
+
+    async def hello(self):
+        await self.send(self.version.to_bytes(2, 'big') + b'\x00\x00')
+        self.debug("Sent Hello.")
+
+    async def ping(self):
+        self.last_ping_id += 1
+        await self.send((1).to_bytes(2, 'big') + self.last_ping_id.to_bytes(2, 'big'))
+        self.pings.update({self.last_ping_id: time.time()})
+        self.debug("ping")
+
+    async def pong(self, id):
+        await self.send((2).to_bytes(2, 'big') + id.to_bytes(2, 'big'))
+
+    async def parse_ping(self, data):
+        await self.pong(int.from_bytes(data, 'big'))
+        self.debug("pong")
+
+    async def parse_pong(self, data):
+        duration = time.time() - self.pings.pop(int.from_bytes(data, 'big'))
+        self.debug(f"Ping duration : {duration}")
+        self.last_ping_duration = duration
 
 
 if __name__ == '__main__':
