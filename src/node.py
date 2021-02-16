@@ -145,7 +145,7 @@ class Peer(Logger):
             await self.ping()
             if time.time() - self.last_heartbeat > (60/self.BPM) * self.TIMEOUT:
                 self.disconnect()
-                self.warn("Timeout. Disconnecting.")
+                self.warning("Timeout. Disconnecting.")
 
     async def heartbeat(self):
         await self.send((3).to_bytes(2, 'big'))
