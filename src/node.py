@@ -42,7 +42,7 @@ class Node(Logger):
 class Peer(Logger):
     CHUNK_SIZE = 1024
     version = 0
-    BPM = 1
+    BPM = 20
     TIMEOUT = 5
     p_flags = {0: "hello",
                1: "ping",
