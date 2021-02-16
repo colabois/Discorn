@@ -42,8 +42,8 @@ class Node(Logger):
 class Peer(Logger):
     CHUNK_SIZE = 1024
     version = 0
-    BPM = 20
-    TIMEOUT = 5
+    BPM = 50
+    TIMEOUT = 20
     p_flags = {0: "hello",
                1: "ping",
                2: "pong",
@@ -64,6 +64,7 @@ class Peer(Logger):
         self.last_ping_id = 0
         self.last_ping_duration = 0
         self.pings = {}
+        self.last_heartbeat = time.time()
 
     async def in_handler(self):
         try:
@@ -89,13 +90,10 @@ class Peer(Logger):
         data = self.version.to_bytes(2, 'big') + data
         chunks = [data[i:i + self.CHUNK_SIZE] for i in range(0, len(data) - self.CHUNK_SIZE, self.CHUNK_SIZE)] + [
             data[len(data) - self.CHUNK_SIZE:]]
-        self.debug(chunks)
         for chunk in chunks[:-1]:
             self.writer.write(b'\xff\xff' + chunk)
-            self.debug(b'\xff\xff' + chunk)
             await self.writer.drain()
         self.writer.write(len(chunks[-1]).to_bytes(2, 'big') + chunks[-1])
-        self.debug(len(chunks[-1]).to_bytes(2, 'big') + chunks[-1])
         await self.writer.drain()
 
     async def parse(self, data):
@@ -120,42 +118,40 @@ class Peer(Logger):
 
     async def hello(self):
         await self.send(self.version.to_bytes(2, 'big') + b'\x00\x00')
-        self.debug("Sent Hello.")
 
     async def ping(self):
-        self.last_ping_id += 1
+        self.last_ping_id = self.last_ping_id + 1 if self.last_ping_id <= 65535 else 0
         await self.send((1).to_bytes(2, 'big') + self.last_ping_id.to_bytes(2, 'big'))
         self.pings.update({self.last_ping_id: time.time()})
-        self.debug("ping")
 
     async def pong(self, id):
         await self.send((2).to_bytes(2, 'big') + id.to_bytes(2, 'big'))
 
     async def parse_ping(self, data):
-        self.debug("ping id : ", data)
         await self.pong(int.from_bytes(data, 'big'))
-        self.debug("pong")
 
     async def parse_pong(self, data):
         duration = time.time() - self.pings.pop(int.from_bytes(data, 'big'))
-        self.debug(f"Ping duration : {duration}")
         self.last_ping_duration = duration
 
     def disconnect(self):
         self.writer.close()
+        self.connected = False
 
     async def heartbeat_core(self):
         while self.connected:
             await asyncio.sleep(60/self.BPM)
             await self.heartbeat()
             await self.ping()
-            self.log(f"Last ping duration : {self.last_ping_duration} s")
+            if time.time() - self.last_heartbeat > (60/self.BPM) * self.TIMEOUT:
+                self.disconnect()
+                self.warn("Timeout. Disconnecting.")
 
     async def heartbeat(self):
         await self.send((3).to_bytes(2, 'big'))
 
     async def parse_heartbeat(self, data):
-        self.debug("poum poum.")
+        self.last_heartbeat = time.time()
 
 
 if __name__ == '__main__':
