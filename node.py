@@ -180,7 +180,7 @@ class Peer(Logger):
         await self.send((5).to_bytes(2, 'big') + guild.raw)
     
     async def parse_newguild(self, data):
-        self.guilds.update({data:None})
+        self.guilds.update({data: None})
         await self.getchainstatus(data)
     
     async def disconnecting(self, mess):
@@ -195,7 +195,7 @@ class Peer(Logger):
         await self.send((7).to_bytes(2, 'big') + data)
 
     async def parse_getchainstatus(self, data):
-        if data not in self.guilds:
+        if data not in self.node.guilds:
             self.error("Guild Unknown, disconnecting...")
             await self.disconnecting("Guild Unknown.")
             self.disconnect()
