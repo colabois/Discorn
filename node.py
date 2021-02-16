@@ -206,7 +206,7 @@ class Peer(Logger):
         data = (8).to_bytes(2, 'big')
         data += guild.raw
         data += len(guild.chain.block_hashes).to_bytes(4, 'big')  # Block Height
-        data += len([peer for peer in self.node.peers if guild.raw in peer.guilds]).to_bytes(2, 'big')  # Peercount
+        data += len([peer for peer in self.node.peers.values() if guild.raw in peer.guilds]).to_bytes(2, 'big')  # Peercount
         await self.send(data)
 
     async def parse_sendchainstatus(self, data):
