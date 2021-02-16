@@ -153,7 +153,7 @@ class Peer(Logger):
     async def heartbeat(self):
         await self.send((3).to_bytes(2, 'big'))
 
-    async def parse_heartbeat(self):
+    async def parse_heartbeat(self, data):
         self.debug("poum poum.")
 
 
