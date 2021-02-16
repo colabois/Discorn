@@ -14,13 +14,11 @@ class Node(Logger):
         self.last_id = 0
         self.server = None
         self.serve = True
-        self.loop = None
 
     def run(self):
         asyncio.run(self.main())
 
     async def main(self):
-        self.loop.node = collections.defaultdict(list)
         self.log("Node is starting..")
         for ip in self.connect:
             try:
@@ -179,7 +177,7 @@ class Peer(Logger):
             await self.newguild(guild)
     
     async def newguild(self, guild):
-        self.send((5).to_bytes(2, 'big') + guild.raw)
+        await self.send((5).to_bytes(2, 'big') + guild.raw)
     
     async def parse_newguild(self, data):
         self.guilds.update({data:None})
@@ -208,12 +206,15 @@ class Peer(Logger):
         data = (8).to_bytes(2, 'big')
         data += guild.raw
         data += len(guild.chain.block_hashes).to_bytes(4, 'big')  # Block Height
-        data += len([peer for peer in self.node.peers if guild.raw in peer.guilds]).to_bytes(2, 'big')  # Peers count
-
+        data += len([peer for peer in self.node.peers if guild.raw in peer.guilds]).to_bytes(2, 'big')  # Peercount
+        await self.send(data)
     async def parse_sendchainstatus(self, data):
-        pass  # self.guilds[data[]]
+        self.guilds[self.guilds[data[:109]]] = {'height': int.from_bytes(data[109:109+4], 'big'),
+                                                'peercount': int.from_bytes(data[109+4:])}
 
 
 if __name__ == '__main__':
     node = Node()
+    g = blockchain.Guild()
+    node.guilds.update({g.raw:g})
     node.run()
