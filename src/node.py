@@ -16,6 +16,8 @@ class Node(Logger):
         asyncio.run(self.main())
 
     async def main(self):
+        for ip in self.connect:
+            await self.outbound(ip)
         self.log("Node is starting..")
         self.server = await asyncio.start_server(self.inbound, '0.0.0.0', 8888)
         addr = self.server.sockets[0].getsockname()
@@ -31,12 +33,14 @@ class Node(Logger):
             ip, port = arg1, arg2
         else:
             ip, port = arg1.split(":")
-        asyncio.ensure_future(Peer(*asyncio.open_connection(ip, port), self).in_handler())
+        asyncio.ensure_future(Peer(*(await asyncio.open_connection(ip, port)), self).in_handler())
 
 
 class Peer(Logger):
     CHUNK_SIZE = 1024
     version = 0
+    BPM = 1
+    TIMEOUT = 5
     p_flags = {0: "hello",
                1: "ping",
                2: "pong",
@@ -47,6 +51,7 @@ class Peer(Logger):
         self.ip, self.port = writer.get_extra_info('peername')
         super().__init__(f"{self.ip}:{self.port}")
         self.log("Connected.")
+        self.connected = True
         self.reader = reader
         self.writer = writer
         self.node = node
@@ -69,12 +74,11 @@ class Peer(Logger):
                 if magic == b'':
                     break
                 await self.parse(data)
-        except:
+        finally:
             self.log("Connection closed.")
             if self.id in self.node.peers:
                 del self.node.peers[self.id]
             self.writer.close()
-            raise
 
     async def send(self, data):
         data = self.version.to_bytes(2, 'big') + data
@@ -130,6 +134,22 @@ class Peer(Logger):
         duration = time.time() - self.pings.pop(int.from_bytes(data, 'big'))
         self.debug(f"Ping duration : {duration}")
         self.last_ping_duration = duration
+
+    def disconnect(self):
+        self.writer.close()
+
+    async def heartbeat_core(self):
+        while True:
+            await asyncio.sleep(60/self.BPM)
+            await self.heartbeat()
+            await self.ping()
+            self.log(f"Last ping duration : {self.last_ping_duration} s")
+
+    async def heartbeat(self):
+        await self.send((3).to_bytes(2, 'big'))
+
+    async def parse_heartbeat(self):
+        self.debug("poum poum.")
 
 
 if __name__ == '__main__':
