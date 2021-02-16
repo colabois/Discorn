@@ -192,7 +192,7 @@ class Peer(Logger):
 
     async def getchainstatus(self, guild):
         data = guild.raw if guild is blockchain.Guild else guild
-        self.send((7).to_bytes(2, 'big') + data)
+        await self.send((7).to_bytes(2, 'big') + data)
 
     async def parse_getchainstatus(self, data):
         if data not in self.guilds:
@@ -200,7 +200,7 @@ class Peer(Logger):
             await self.disconnecting("Guild Unknown.")
             self.disconnect()
         else:
-            self.sendchainstatus(self.node.guilds[data])
+            await self.sendchainstatus(self.node.guilds[data])
 
     async def sendchainstatus(self, guild):
         data = (8).to_bytes(2, 'big')
@@ -208,9 +208,11 @@ class Peer(Logger):
         data += len(guild.chain.block_hashes).to_bytes(4, 'big')  # Block Height
         data += len([peer for peer in self.node.peers if guild.raw in peer.guilds]).to_bytes(2, 'big')  # Peercount
         await self.send(data)
+
     async def parse_sendchainstatus(self, data):
         self.guilds[self.guilds[data[:109]]] = {'height': int.from_bytes(data[109:109+4], 'big'),
                                                 'peercount': int.from_bytes(data[109+4:])}
+        self.log(self.guilds)
 
 
 if __name__ == '__main__':
