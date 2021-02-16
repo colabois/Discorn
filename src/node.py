@@ -7,7 +7,7 @@ import time
 class Node(Logger):
     def __init__(self, name='Node'):
         super().__init__(name)
-        self.connect = ['192.168.0.12:8888']
+        self.connect = ['192.168.0.12:8888', '192.168.0.14:8888']
         self.peers = {}
         self.last_id = 0
         self.server = None
