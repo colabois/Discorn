@@ -55,6 +55,7 @@ class Peer(Logger):
         super().__init__(f"{self.ip}:{self.port}")
         self.log("Connected.")
         self.connected = True
+        asyncio.ensure_future(self.heartbeat_core())
         self.reader = reader
         self.writer = writer
         self.node = node
@@ -82,6 +83,7 @@ class Peer(Logger):
             if self.id in self.node.peers:
                 del self.node.peers[self.id]
             self.writer.close()
+            self.connected = False
 
     async def send(self, data):
         data = self.version.to_bytes(2, 'big') + data
@@ -142,7 +144,7 @@ class Peer(Logger):
         self.writer.close()
 
     async def heartbeat_core(self):
-        while True:
+        while self.connected:
             await asyncio.sleep(60/self.BPM)
             await self.heartbeat()
             await self.ping()
