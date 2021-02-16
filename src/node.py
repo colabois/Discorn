@@ -108,7 +108,7 @@ class Peer(Logger):
             return
         p_flag = int.from_bytes(data[2:4], 'big')
         if p_flag in self.p_flags:
-            await getattr(self, 'parse_' + self.p_flags[p_flag])(data[3:])
+            await getattr(self, 'parse_' + self.p_flags[p_flag])(data[4:])
         else:
             self.error(f"Unknown payload Flag {p_flag}. Closing connection.")
             await self.send(b'Unknown Flag !')
@@ -132,6 +132,7 @@ class Peer(Logger):
         await self.send((2).to_bytes(2, 'big') + id.to_bytes(2, 'big'))
 
     async def parse_ping(self, data):
+        self.debug("ping id : ", data)
         await self.pong(int.from_bytes(data, 'big'))
         self.debug("pong")
 
