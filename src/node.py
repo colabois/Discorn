@@ -17,7 +17,10 @@ class Node(Logger):
 
     async def main(self):
         for ip in self.connect:
-            await self.outbound(ip)
+            try:
+                await self.outbound(ip)
+            except ConnectionRefusedError:
+                self.warning(f"Connection refused : {ip}")
         self.log("Node is starting..")
         self.server = await asyncio.start_server(self.inbound, '0.0.0.0', 8888)
         addr = self.server.sockets[0].getsockname()
