@@ -216,6 +216,10 @@ class Guild(Logger):
             self.chain.new_head(genesis)
         else:
             self.chain = chain
+    
+    @property
+    def raw(self):
+        return self.vk.address + self.chain.blocks[self.chain.block_hashes[0]].header
 
 
 class Wallet(Logger):

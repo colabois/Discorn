@@ -9,6 +9,7 @@ class Node(Logger):
         super().__init__(name)
         self.connect = ['192.168.0.12:8888', '192.168.0.14:8888']
         self.peers = {}
+        self.guilds = {}
         self.last_id = 0
         self.server = None
 
@@ -47,7 +48,10 @@ class Peer(Logger):
     p_flags = {0: "hello",
                1: "ping",
                2: "pong",
-               3: "heartbeat"}
+               3: "heartbeat",
+               4: "getguilds",
+               5: "newguild",
+               6: "disconnecting"}
     ver = version.to_bytes(1, 'big')
 
     def __init__(self, reader, writer, node):
@@ -65,11 +69,13 @@ class Peer(Logger):
         self.last_ping_duration = 0
         self.pings = {}
         self.last_heartbeat = time.time()
+        self.guilds = set()
 
     async def in_handler(self):
         try:
             await self.hello()
-            while True:
+            await self.getguilds()
+            while self.connected:
                 magic = await self.reader.read(2)
                 data = b''
                 while magic == b'\xff\xff':
@@ -80,37 +86,33 @@ class Peer(Logger):
                     break
                 await self.parse(data)
         finally:
-            self.log("Connection closed.")
-            if self.id in self.node.peers:
-                del self.node.peers[self.id]
-            self.writer.close()
-            self.connected = False
+            self.disconnect()
+
 
     async def send(self, data):
-        data = self.version.to_bytes(2, 'big') + data
-        chunks = [data[i:i + self.CHUNK_SIZE] for i in range(0, len(data) - self.CHUNK_SIZE, self.CHUNK_SIZE)] + [
-            data[len(data) - self.CHUNK_SIZE:]]
-        for chunk in chunks[:-1]:
-            self.writer.write(b'\xff\xff' + chunk)
+        if self.connected:
+            data = self.version.to_bytes(2, 'big') + data
+            chunks = [data[i:i + self.CHUNK_SIZE] for i in range(0, len(data) - self.CHUNK_SIZE, self.CHUNK_SIZE)] + [
+                data[len(data) - self.CHUNK_SIZE:]]
+            for chunk in chunks[:-1]:
+                self.writer.write(b'\xff\xff' + chunk)
+                await self.writer.drain()
+            self.writer.write(len(chunks[-1]).to_bytes(2, 'big') + chunks[-1])
             await self.writer.drain()
-        self.writer.write(len(chunks[-1]).to_bytes(2, 'big') + chunks[-1])
-        await self.writer.drain()
 
     async def parse(self, data):
         version = int.from_bytes(data[:2], 'big')
         if version != self.version:
             self.error(f"Version is not the same : {version} and not {self.version}. Closing connection.")
-            await self.send(b"Incorrect version !")
-            self.writer.close()
-            del self.node.peers[self.id]
-            return
+            await self.disconnecting(b"Incorrect version !")
+            return self.disconnect()
         p_flag = int.from_bytes(data[2:4], 'big')
         if p_flag in self.p_flags:
             await getattr(self, 'parse_' + self.p_flags[p_flag])(data[4:])
         else:
             self.error(f"Unknown payload Flag {p_flag}. Closing connection.")
-            await self.send(b'Unknown Flag !')
-            del self.node.peers[self.id]
+            await self.disconnecting(b'Unknown Flag !')
+            self.disconnect()
             return
 
     async def parse_hello(self, data):
@@ -135,8 +137,11 @@ class Peer(Logger):
         self.last_ping_duration = duration
 
     def disconnect(self):
-        self.writer.close()
-        self.connected = False
+        if self.connected:
+            del self.node.peers[self.id]
+            self.writer.close()
+            self.connected = False
+            self.log("Connection closed.")
 
     async def heartbeat_core(self):
         while self.connected:
@@ -144,15 +149,34 @@ class Peer(Logger):
             await self.heartbeat()
             await self.ping()
             if time.time() - self.last_heartbeat > (60/self.BPM) * self.TIMEOUT:
-                self.disconnect()
                 self.warning("Timeout. Disconnecting.")
+                self.disconnect()
 
     async def heartbeat(self):
         await self.send((3).to_bytes(2, 'big'))
 
     async def parse_heartbeat(self, data):
         self.last_heartbeat = time.time()
-
+    
+    async def getguilds(self):
+        await self.send((4).to_bytes(2, 'big'))
+    
+    async def parse_getguilds(self, data):
+        for _, guild in self.node.guilds.items():
+            await self.newguild(guild)
+    
+    async def newguild(self, guild):
+        self.send((5).to_bytes(2, 'big') + guild.raw)
+    
+    async def parse_newguild(self, data):
+        self.guilds.update({data})
+    
+    async def disconnecting(self, mess):
+        await self.send((6).to_bytes(2, 'big') + mess)
+    
+    async def parse_disconnecting(self, data):
+        self.error(f"Remote closing connection : {data.decode('utf-8')}. Disconnecting.")
+        self.disconnect()
 
 if __name__ == '__main__':
     node = Node()
