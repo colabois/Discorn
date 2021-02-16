@@ -1,19 +1,17 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 merklelib = "*"
 py-cryptonight = "*"
 ecdsa = "*"
 pycryptodome = "*"
 "base58" = "*"
-"pyqt5" = "*"
-
+pyside6 = "*"
+qt-material = "*"
+pyside2 = "*"
+aioconsole = "*"
 
 [dev-packages]
-

@@ -2,6 +2,7 @@ import asyncio
 import blockchain
 from log import Logger
 import time
+import collections
 
 
 class Node(Logger):
@@ -12,17 +13,28 @@ class Node(Logger):
         self.guilds = {}
         self.last_id = 0
         self.server = None
+        self.serve = True
+        self.loop = None
 
     def run(self):
         asyncio.run(self.main())
 
     async def main(self):
+        self.loop.node = collections.defaultdict(list)
+        self.log("Node is starting..")
         for ip in self.connect:
             try:
                 await self.outbound(ip)
             except ConnectionRefusedError:
                 self.warning(f"Connection refused : {ip}")
-        self.log("Node is starting..")
+        if self.serve:
+            asyncio.ensure_future(self.listen())
+
+        #Main Loop
+        while True:
+            await asyncio.sleep(60)
+
+    async def listen(self):
         self.server = await asyncio.start_server(self.inbound, '0.0.0.0', 8888)
         addr = self.server.sockets[0].getsockname()
         self.log(f"Listening on {addr}")
@@ -51,7 +63,9 @@ class Peer(Logger):
                3: "heartbeat",
                4: "getguilds",
                5: "newguild",
-               6: "disconnecting"}
+               6: "disconnecting",
+               7: "getchainstatus",
+               8: "sendchainstatus"}
     ver = version.to_bytes(1, 'big')
 
     def __init__(self, reader, writer, node):
@@ -69,7 +83,7 @@ class Peer(Logger):
         self.last_ping_duration = 0
         self.pings = {}
         self.last_heartbeat = time.time()
-        self.guilds = set()
+        self.guilds = {}
 
     async def in_handler(self):
         try:
@@ -87,7 +101,6 @@ class Peer(Logger):
                 await self.parse(data)
         finally:
             self.disconnect()
-
 
     async def send(self, data):
         if self.connected:
@@ -169,7 +182,8 @@ class Peer(Logger):
         self.send((5).to_bytes(2, 'big') + guild.raw)
     
     async def parse_newguild(self, data):
-        self.guilds.update({data})
+        self.guilds.update({data:None})
+        await self.getchainstatus(data)
     
     async def disconnecting(self, mess):
         await self.send((6).to_bytes(2, 'big') + mess)
@@ -177,6 +191,28 @@ class Peer(Logger):
     async def parse_disconnecting(self, data):
         self.error(f"Remote closing connection : {data.decode('utf-8')}. Disconnecting.")
         self.disconnect()
+
+    async def getchainstatus(self, guild):
+        data = guild.raw if guild is blockchain.Guild else guild
+        self.send((7).to_bytes(2, 'big') + data)
+
+    async def parse_getchainstatus(self, data):
+        if data not in self.guilds:
+            self.error("Guild Unknown, disconnecting...")
+            await self.disconnecting("Guild Unknown.")
+            self.disconnect()
+        else:
+            self.sendchainstatus(self.node.guilds[data])
+
+    async def sendchainstatus(self, guild):
+        data = (8).to_bytes(2, 'big')
+        data += guild.raw
+        data += len(guild.chain.block_hashes).to_bytes(4, 'big')  # Block Height
+        data += len([peer for peer in self.node.peers if guild.raw in peer.guilds]).to_bytes(2, 'big')  # Peers count
+
+    async def parse_sendchainstatus(self, data):
+        self.guilds[data[]]
+
 
 if __name__ == '__main__':
     node = Node()
