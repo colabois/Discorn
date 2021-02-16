@@ -7,6 +7,7 @@ import time
 class Node(Logger):
     def __init__(self, name='Node'):
         super().__init__(name)
+        self.connect = ['192.168.0.12:8888']
         self.peers = {}
         self.last_id = 0
         self.server = None
@@ -23,8 +24,14 @@ class Node(Logger):
             await self.server.serve_forever()
 
     async def inbound(self, reader, writer):
-        p = Peer(reader, writer, self)
-        await p.in_handler()
+        await Peer(reader, writer, self).in_handler()
+
+    async def outbound(self, arg1, arg2=None):
+        if arg2 is not None:
+            ip, port = arg1, arg2
+        else:
+            ip, port = arg1.split(":")
+        asyncio.ensure_future(Peer(*asyncio.open_connection(ip, port), self).in_handler())
 
 
 class Peer(Logger):
