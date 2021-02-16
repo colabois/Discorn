@@ -211,7 +211,7 @@ class Peer(Logger):
         data += len([peer for peer in self.node.peers if guild.raw in peer.guilds]).to_bytes(2, 'big')  # Peers count
 
     async def parse_sendchainstatus(self, data):
-        self.guilds[data[]]
+        pass  # self.guilds[data[]]
 
 
 if __name__ == '__main__':
