@@ -211,7 +211,7 @@ class Peer(Logger):
 
     async def parse_sendchainstatus(self, data):
         self.guilds[self.guilds[data[:109]]] = {'height': int.from_bytes(data[109:109+4], 'big'),
-                                                'peercount': int.from_bytes(data[109+4:])}
+                                                'peercount': int.from_bytes(data[109+4:], 'big')}
         self.log(self.guilds)
 
 
