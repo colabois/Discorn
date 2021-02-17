@@ -13,5 +13,6 @@ pyside6 = "*"
 qt-material = "*"
 pyside2 = "*"
 aioconsole = "*"
+qasync = "*"
 
 [dev-packages]

@@ -1,8 +1,0 @@
-16c16
-< class Ui_Tab(object):
----
-> class Ui_Tab(QWidget):
-18,20d17
-<         if not Tab.objectName():
-<             Tab.setObjectName(u"Tab")
-<         Tab.resize(400, 300)

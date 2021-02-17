@@ -1,12 +1,12 @@
 PYUIC = pipenv run pyside2-uic
 UI = $(wildcard *.ui)
 
-%.py : %.ui %.py.diff
+%.py : %.ui %.py.sh
 	$(PYUIC) $< > $@
-	patch $@ < $@.diff
+	bash $@.sh $@
 
-%.py.diff :
-	cp default_diff $@
+%.py.sh :
+	cp default_sh $@
 
 ui : $(UI:.ui=.py)
 

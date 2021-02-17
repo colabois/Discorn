@@ -25,7 +25,7 @@ class Node(Logger):
         for ip in self.connect:
             try:
                 await self.outbound(ip)
-            except ConnectionRefusedError:
+            except (ConnectionRefusedError, OSError):
                 self.warning(f"Connection refused : {ip}")
         if self.serve:
             asyncio.ensure_future(self.listen())
