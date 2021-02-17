@@ -19,6 +19,8 @@ class Node(Logger):
         asyncio.run(self.main())
 
     async def main(self):
+        loop = asyncio.get_event_loop()
+        loop.node = self
         self.log("Node is starting..")
         for ip in self.connect:
             try:
@@ -187,7 +189,7 @@ class Peer(Logger):
         await self.send((6).to_bytes(2, 'big') + mess)
     
     async def parse_disconnecting(self, data):
-        self.error(f"Remote closing connection : {data.decode('utf-8')}. Disconnecting.")
+        self.error(f"Remote closing connection : {data.decode('utf-8')} - Disconnecting.")
         self.disconnect()
 
     async def getchainstatus(self, guild):
@@ -213,6 +215,8 @@ class Peer(Logger):
         self.guilds[self.guilds[data[:109]]] = {'height': int.from_bytes(data[109:109+4], 'big'),
                                                 'peercount': int.from_bytes(data[109+4:], 'big')}
         self.log(self.guilds)
+
+
 
 
 if __name__ == '__main__':

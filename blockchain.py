@@ -10,18 +10,33 @@ import string
 from merklelib import MerkleTree
 
 
-def fast_hash(b):
+def fast_hash(b: bytes):
+    """Hashing function used for Corner hashes.
+    :type b: bytes | data to hash
+    :returns string | hexadecimal hash representation
+    """
     return pycryptonight.cn_fast_hash(b).hex()
 
 
-def get_hash(data, hash_func=hashlib.sha256):
+def get_hash(data: bytes, hash_func=hashlib.sha256):
+    """Hashing function used in key pairs.
+    :param hash_func: function | hash function that follows hashlib's way of hashing...
+    :type data: bytes | data to hash
+    :returns data:
+    """
     h = hash_func()
     h.update(data)
     return h.digest()
 
 
 class SK:
-    def __init__(self, sk=None):
+    """Signing Key object"""
+    def __init__(self, sk: ecdsa.SigningKey = None):
+        """
+        Generates a new Signing Key if sk is None
+
+        :type sk: object
+        """
         self._sk = sk
         if self._sk is None:
             self._sk = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256)
@@ -30,27 +45,27 @@ class SK:
         self.address = self.vk.address
         self.b58 = self.vk.b58
 
-    def sign(self, data):
+    def sign(self, data: bytes):
         return Signature(self._sk.sign(pycryptonight.cn_fast_hash(data)), self.vk)
 
 
 class VK:
-    def __init__(self, vk):
+    def __init__(self, vk: ecdsa.VerifyingKey):
         self._vk = vk
         self.string = self._vk.to_string()
         address = get_hash(pycryptonight.cn_fast_hash(self._vk.to_string()), RIPEMD160.new)
         self.address = address + pycryptonight.cn_fast_hash(address)[:8]
         self.b58 = base58.b58encode(self.address, base58.BITCOIN_ALPHABET)
 
-    def verify(self, signature, data):
+    def verify(self, signature: bytes, data: bytes):
         try:
-            return self._vk.verify(signature.signature, pycryptonight.cn_fast_hash(data))
+            return self._vk.verify(signature, pycryptonight.cn_fast_hash(data))
         except ecdsa.keys.BadSignatureError:
             return False
 
 
 class Signature:
-    def __init__(self, signature, vk):
+    def __init__(self, signature: bytes, vk: VK):
         self.signature = signature
         self.vk = vk
 
@@ -58,7 +73,7 @@ class Signature:
     def raw(self):
         return self.vk.string + self.signature
 
-    def verify(self, data):
+    def verify(self, data: bytes):
         return self.vk.verify(self, data)
 
 

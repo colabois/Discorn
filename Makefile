@@ -1,7 +1,5 @@
-PYUIC = pipenv run pyside2-uic
-UI = $(wildcard *.ui)
+ui :
+	$(MAKE) -C Gui/ _ui
 
-%.py : %.ui
-	$(PYUIC) $^ > $@
-
-ui : $(UI:.ui=.py)
+clean :
+	$(MAKE) -C Gui/ clean
