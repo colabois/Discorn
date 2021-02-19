@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>789</width>
-    <height>493</height>
+    <width>1151</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,7 +51,7 @@
          <enum>QTabWidget::East</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -83,8 +83,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>230</width>
-                 <height>272</height>
+                 <width>374</width>
+                 <height>324</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
@@ -136,7 +136,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidget_2">
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tab_5">
              <attribute name="title">
@@ -198,6 +198,9 @@
                       <property name="suffix">
                        <string> BTC</string>
                       </property>
+                      <property name="decimals">
+                       <number>8</number>
+                      </property>
                       <property name="maximum">
                        <double>100000000000000005250476025520442024870446858110815915491585411551180245798890819578637137508044786404370444383288387817694252323536043057564479218478670698284838720092657580373783023379478809005936895323497079994508111903896764088007465274278014249457925878882005684283811566947219638686545940054016.000000000000000</double>
                       </property>
@@ -249,6 +252,9 @@
                       </property>
                       <property name="suffix">
                        <string> BTC</string>
+                      </property>
+                      <property name="decimals">
+                       <number>8</number>
                       </property>
                       <property name="maximum">
                        <double>100000000000000005250476025520442024870446858110815915491585411551180245798890819578637137508044786404370444383288387817694252323536043057564479218478670698284838720092657580373783023379478809005936895323497079994508111903896764088007465274278014249457925878882005684283811566947219638686545940054016.000000000000000</double>
@@ -305,6 +311,9 @@
                       <property name="suffix">
                        <string> BTC</string>
                       </property>
+                      <property name="decimals">
+                       <number>8</number>
+                      </property>
                       <property name="maximum">
                        <double>100000000000000005250476025520442024870446858110815915491585411551180245798890819578637137508044786404370444383288387817694252323536043057564479218478670698284838720092657580373783023379478809005936895323497079994508111903896764088007465274278014249457925878882005684283811566947219638686545940054016.000000000000000</double>
                       </property>
@@ -334,6 +343,19 @@
                  <property name="title">
                   <string>Recent Transactions</string>
                  </property>
+                 <widget class="QPushButton" name="pushButton">
+                  <property name="geometry">
+                   <rect>
+                    <x>70</x>
+                    <y>70</y>
+                    <width>88</width>
+                    <height>34</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string>Test</string>
+                  </property>
+                 </widget>
                 </widget>
                </widget>
               </item>
@@ -435,10 +457,29 @@
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_3">
                    <item>
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="decimals">
+                      <number>8</number>
+                     </property>
+                     <property name="maximum">
+                      <double>100000000000000005250476025520442024870446858110815915491585411551180245798890819578637137508044786404370444383288387817694252323536043057564479218478670698284838720092657580373783023379478809005936895323497079994508111903896764088007465274278014249457925878882005684283811566947219638686545940054016.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item>
                     <widget class="QComboBox" name="comboBox">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <item>
                       <property name="text">
                        <string>BTC</string>
@@ -455,6 +496,22 @@
                       </property>
                      </item>
                     </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeType">
+                      <enum>QSizePolicy::Expanding</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>1200</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
                    </item>
                   </layout>
                  </item>

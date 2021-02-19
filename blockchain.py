@@ -21,8 +21,8 @@ def fast_hash(b: bytes):
 def get_hash(data: bytes, hash_func=hashlib.sha256):
     """Hashing function used in key pairs.
     :param hash_func: function | hash function that follows hashlib's way of hashing...
-    :type data: bytes | data to hash
-    :returns data:
+    :type data: bytes
+    :return: bytes
     """
     h = hash_func()
     h.update(data)
@@ -33,7 +33,7 @@ class SK:
     """Signing Key object"""
     def __init__(self, sk: ecdsa.SigningKey = None):
         """
-        Generates a new Signing Key if sk is None
+        Generates a new Signing Key if sk is None.
 
         :type sk: object
         """
@@ -46,11 +46,23 @@ class SK:
         self.b58 = self.vk.b58
 
     def sign(self, data: bytes):
+        """
+        Generates a Signature for the given data.
+
+        :param data: bytes
+        :return: Signature
+        """
         return Signature(self._sk.sign(pycryptonight.cn_fast_hash(data)), self.vk)
 
 
 class VK:
+    """Verifying Key object"""
     def __init__(self, vk: ecdsa.VerifyingKey):
+        """
+        Initialise a Verifying Key instance.
+
+        :param vk: ecdsa.VerifyingKey
+        """
         self._vk = vk
         self.string = self._vk.to_string()
         address = get_hash(pycryptonight.cn_fast_hash(self._vk.to_string()), RIPEMD160.new)
@@ -58,6 +70,13 @@ class VK:
         self.b58 = base58.b58encode(self.address, base58.BITCOIN_ALPHABET)
 
     def verify(self, signature: bytes, data: bytes):
+        """
+        Verifies raw signature.
+
+        :param signature: bytes
+        :param data: bytes
+        :return: bool
+        """
         try:
             return self._vk.verify(signature, pycryptonight.cn_fast_hash(data))
         except ecdsa.keys.BadSignatureError:
@@ -65,37 +84,89 @@ class VK:
 
 
 class Signature:
+    """Signature object"""
     def __init__(self, signature: bytes, vk: VK):
+        """
+        Initialises a Signature instance.
+
+        :param signature: bytes
+        :param vk: VK
+        """
         self.signature = signature
         self.vk = vk
 
     @property
     def raw(self):
+        """
+        Raw signature representation base on the Discorn Protocol.
+
+        :return: bytes
+        """
         return self.vk.string + self.signature
 
     def verify(self, data: bytes):
+        """
+        Verifies the Signature against data.
+
+        :param data: bytes
+        :return: bool
+        """
         return self.vk.verify(self, data)
 
 
 def raw_sig(raw):
+    """
+    Decodes a raw signature into a Signature object.
+
+    :param raw: bytes
+    :return: Signature
+    """
     return Signature(raw[64:], ecdsa.VerifyingKey.from_string(raw[:64], curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256))
 
 
 class Corner:
+    """Corner object"""
     def __init__(self, flag=-1):
+        """
+        This function has to be overloaded.
+
+        :param flag:
+        """
         self.flag = flag
-        self.payload = b''
 
     @property
     def raw(self):
+        """
+        Raw representation of Corner based on Discorn Protocol.
+
+        :return: bytes
+        """
         res = len(self.payload).to_bytes(2, 'big')
         res += self.flag.to_bytes(1, 'big')
         res += self.payload
         return res
 
+    @property
+    def payload(self):
+        """
+        Raw payload.
+
+        :return: bytes
+        """
+        return b''
+
 
 class Tx(Corner):
+    """Transaction object"""
     def __init__(self, version=0, inputs=None, outputs=None, signatures=None):
+        """
+        Initialise a transaction object.
+
+        :param version: int
+        :param inputs: Input list
+        :param outputs: Output list
+        :param signatures: Signature list
+        """
         self.flag = 0
         self.version = version
         self.inputs = [] if inputs is None else inputs
@@ -104,6 +175,11 @@ class Tx(Corner):
 
     @property
     def body(self):
+        """
+        Raw representation of Transaction payload based on the Discorn Protocol (without signatures)
+
+        :return: bytes
+        """
         res = self.version.to_bytes(1, 'big')
         res += len(self.inputs).to_bytes(1)
         for (address, origin) in self.inputs:
@@ -114,6 +190,11 @@ class Tx(Corner):
 
     @property
     def payload(self):
+        """
+        Raw representation of Transaction payload based on the Discorn Protocol
+
+        :return: bytes
+        """
         res = self.body
         for signature in self.signatures:
             res += signature.raw
@@ -126,15 +207,28 @@ class Block(Logger):
     NONCE_SIZE = 4
 
     def __init__(self,
-                 blockchain=None,
-                 name='block',
-                 height=0,
-                 version=0,
-                 coinbase=None,
-                 corners=None,
+                 blockchain: BlockChain = None,
+                 name: str = 'block',
+                 height: int = 0,
+                 version: int = 0,
+                 coinbase: Corner = None,
+                 corners: list = None,
                  timestamp=0,
                  previous_hash=pycryptonight.cn_slow_hash(b''),
                  nonce=(0).to_bytes(NONCE_SIZE, 'big')):
+        """
+        Initialises a Block instance.
+
+        :param blockchain: Blockchain
+        :param name: str
+        :param height: int
+        :param version: int
+        :param coinbase: Corner
+        :param corners: Corner list
+        :param timestamp: int
+        :param previous_hash: bytes
+        :param nonce: bytes
+        """
         super().__init__(f"{name} - {height} :")
         self.blockchain = blockchain
         self.version = version
@@ -149,9 +243,20 @@ class Block(Logger):
 
     @property
     def corners(self):
+        """
+        list of coinbase and other corners.
+
+        :return: Corner list
+        """
         return [self.coinbase] + self._corners
 
     def compute_tree(self, new_data=None):
+        """
+        Computes the Merkle Tree associated with the corners in the block.
+
+        :param new_data: Corner list
+        :return: None
+        """
         if new_data is None:
             self.merkle_tree = MerkleTree(self.corners, fast_hash)
         else:
