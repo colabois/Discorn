@@ -207,7 +207,7 @@ class Block(Logger):
     NONCE_SIZE = 4
 
     def __init__(self,
-                 blockchain: BlockChain = None,
+                 blockchain = None,
                  name: str = 'block',
                  height: int = 0,
                  version: int = 0,
@@ -264,6 +264,11 @@ class Block(Logger):
 
     @property
     def header(self):
+        """
+        Raw representation of block header based on the Discorn Protocol.
+
+        :return: bytes
+        """
         res = self.version.to_bytes(2, 'big')
         res += self.timestamp.to_bytes(8, 'big')
         res += len(self.corners).to_bytes(3, 'big')
@@ -273,10 +278,21 @@ class Block(Logger):
         return res
 
     def random_nonce(self):
+        """
+        Generates a random nonce for this block. (Mining OP)
+
+        :return: None
+        """
         self.timestamp = time.time_ns()
         self.nonce = os.urandom(self.NONCE_SIZE)
 
     def mine(self, difficulty=None):
+        """
+        Mines the given block for the given difficulty.
+
+        :param difficulty:
+        :return: None
+        """
         difficulty = self.difficulty if difficulty is None else difficulty
         while int.from_bytes(self.get_hash(), 'big') >= (1 << (256 - difficulty)):
             self.log(f"new hash : {self.hash.hex()}")
@@ -284,6 +300,11 @@ class Block(Logger):
         self.log(f"Mined !! : {self.hash.hex()}")
 
     def get_hash(self):
+        """
+        Calculates the block's hash.
+
+        :return: bytes
+        """
         self.hash = pycryptonight.cn_slow_hash(self.header, 4)
         return self.hash
 
