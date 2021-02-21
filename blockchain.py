@@ -290,7 +290,7 @@ class Block(Logger):
         """
         Mines the given block for the given difficulty.
 
-        :param difficulty:
+        :param difficulty: int
         :return: None
         """
         difficulty = self.difficulty if difficulty is None else difficulty
@@ -312,19 +312,36 @@ class Block(Logger):
 class BlockChain(Logger):
     """BlockChain data model."""
 
-    def __init__(self, name='Main'):
+    def __init__(self, name:str = 'Main'):
+        """
+        Initialises a Blockchain instance.
+        
+        :param name: str | Used in logs
+        :return: None
+        """
         super().__init__(name)
         self.block_hashes = []
         self.blocks = {}
         self.corners = {}
         self.unconfirmed_corners = {}
 
-    def new_head(self, block):
+    def new_head(self, block: Block):
+        """
+        Sets the given block as the new Blockchain head.
+        
+        :param block: Block
+        :return: None
+        """
         self.block_hashes.append(block.hash)
         self.blocks.update({block.hash: block})
         self.log(f"New head : [{len(self.blocks)}] - {block.hash.hex()}")
 
     def get_block_template(self):
+        """
+        Get a Block instance to be mined based on the current chainstate and pending Corners.
+        
+        :returns: Block
+        """
         block = Block(self,
                       corners=[corner for corner in self.unconfirmed_corners.items()],
                       timestamp=time.time_ns(),
@@ -340,7 +357,11 @@ class BlockChain(Logger):
 
 
 class Guild(Logger):
+    """Guild object"""
     def __init__(self, vk=None, sk=None, genesis=None, chain=None, name='Main-Guild'):
+        """
+        Initialises a Guild instance with a new chain and private key or given ones.
+        """
         super().__init__(name)
         if vk is None:
             if sk is None:
