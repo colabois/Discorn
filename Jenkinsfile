@@ -13,7 +13,7 @@ pipeline {
         REL_PATH = "/releases/${env.PROJECT_NAME}/"
         DEPLOY_DOC_PATH = "www${env.DOC_PATH}"
         DEPLOY_REL_PATH = "www${env.REL_PATH}"
-        RELEASE_ROOT = "src"
+        RELEASE_ROOT = "."
         TAG_NAME = """${TAG_NAME ?: ""}"""
         ARTIFACTS = "${WORKSPACE}/.artifacts"
         WEBHOOK_URL = credentials('webhook_discorn')
@@ -45,12 +45,11 @@ pipeline {
 
         stage('Run Tests') { 
             steps {
-                sh '''cd src 
-                pipenv run pytest -p no:warnings --junit-xml test-reports/results.xml'''
+                sh '''pipenv run pytest -p no:warnings --junit-xml test-reports/results.xml'''
             }
             post {
                 always {
-                    junit 'src/test-reports/results.xml' 
+                    junit 'test-reports/results.xml' 
                 }
             }
         }
