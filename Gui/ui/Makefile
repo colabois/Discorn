@@ -11,4 +11,4 @@ UI = $(wildcard *.ui)
 ui : $(UI:.ui=.py)
 
 clean:
-	rm *.py
+	rm *.py || true

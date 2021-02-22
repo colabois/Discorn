@@ -10,18 +10,22 @@ import string
 from merklelib import MerkleTree
 
 
-def fast_hash(b: bytes):
-    """Hashing function used for Corner hashes.
-    :type b: bytes | data to hash
-    :returns string | hexadecimal hash representation
+def fast_hash(data: bytes):
     """
-    return pycryptonight.cn_fast_hash(b).hex()
+    Hashing function used for Corner hashes.
+    
+    :param data: bytes
+    :return: str
+    """
+    return pycryptonight.cn_fast_hash(data).hex()
 
 
 def get_hash(data: bytes, hash_func=hashlib.sha256):
-    """Hashing function used in key pairs.
-    :param hash_func: function | hash function that follows hashlib's way of hashing...
-    :type data: bytes
+    """
+    Hashing function used in key pairs.
+    
+    :param hash_func: function
+    :param data: bytes
     :return: bytes
     """
     h = hash_func()
@@ -53,6 +57,24 @@ class SK:
         :return: Signature
         """
         return Signature(self._sk.sign(pycryptonight.cn_fast_hash(data)), self.vk)
+    
+    @property
+    def raw(self):
+        """
+        Raw representation of SK based on the Discorn Protocol.
+        
+        :return: bytes
+        """
+        return self._sk.to_string()
+
+def decode_SK(raw: bytes):
+    """
+    Decodes a raw Signing Key.
+    
+    :param raw: bytes
+    :return: SK
+    """
+    return SK(ecdsa.SigningKey.from_string(raw))
 
 
 class VK:
@@ -64,7 +86,6 @@ class VK:
         :param vk: ecdsa.VerifyingKey
         """
         self._vk = vk
-        self.string = self._vk.to_string()
         address = get_hash(pycryptonight.cn_fast_hash(self._vk.to_string()), RIPEMD160.new)
         self.address = address + pycryptonight.cn_fast_hash(address)[:8]
         self.b58 = base58.b58encode(self.address, base58.BITCOIN_ALPHABET)
@@ -82,6 +103,20 @@ class VK:
         except ecdsa.keys.BadSignatureError:
             return False
 
+    @property
+    def raw(self):
+        return self._vk.to_string()
+
+
+def decode_VK(raw):
+    """
+    Decodes a raw Verifying key
+    
+    :param raw: bytes
+    :return: VK
+    """
+    return VK(ecdsa.VerifyingKey.from_string(raw, curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256))
+
 
 class Signature:
     """Signature object"""
@@ -98,11 +133,11 @@ class Signature:
     @property
     def raw(self):
         """
-        Raw signature representation base on the Discorn Protocol.
+        Raw signature representation based on the Discorn Protocol.
 
         :return: bytes
         """
-        return self.vk.string + self.signature
+        return self.vk.raw + self.signature
 
     def verify(self, data: bytes):
         """
@@ -111,17 +146,17 @@ class Signature:
         :param data: bytes
         :return: bool
         """
-        return self.vk.verify(self, data)
+        return self.vk.verify(self.signature, data)
 
 
-def raw_sig(raw):
+def decode_Signature(raw):
     """
-    Decodes a raw signature into a Signature object.
+    Decodes a raw Signature.
 
     :param raw: bytes
     :return: Signature
     """
-    return Signature(raw[64:], ecdsa.VerifyingKey.from_string(raw[:64], curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256))
+    return Signature(raw[64:], decode_VK(raw[:64]))
 
 
 class Corner:
