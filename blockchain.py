@@ -33,6 +33,12 @@ def get_hash(data: bytes, hash_func=hashlib.sha256):
     return h.digest()
 
 
+class Address:
+    """Address object"""
+    def __init__(self):
+        pass
+
+
 class SK:
     """Signing Key object"""
     def __init__(self, sk: ecdsa.SigningKey = None):
@@ -57,7 +63,7 @@ class SK:
         :return: Signature
         """
         return Signature(self._sk.sign(pycryptonight.cn_fast_hash(data)), self.vk)
-    
+
     @property
     def raw(self):
         """
@@ -66,6 +72,7 @@ class SK:
         :return: bytes
         """
         return self._sk.to_string()
+
 
 def decode_SK(raw: bytes):
     """
@@ -160,6 +167,7 @@ def decode_Signature(raw):
 
 
 class Corner:
+    flag = -1
     """Corner object"""
     def __init__(self, flag=-1):
         """
@@ -190,8 +198,22 @@ class Corner:
         """
         return b''
 
+def decode_Corner(raw):
+    """
+    Decodes a raw Corner
+    
+    :param raw: bytes
+    :return: Corner
+    """
+
+
+class Input:
+    def __init__(self):
+        pass
+
 
 class Tx(Corner):
+    flag = 0
     """Transaction object"""
     def __init__(self, version=0, inputs=None, outputs=None, signatures=None):
         """
@@ -202,7 +224,6 @@ class Tx(Corner):
         :param outputs: Output list
         :param signatures: Signature list
         """
-        self.flag = 0
         self.version = version
         self.inputs = [] if inputs is None else inputs
         self.outputs = [] if outputs is None else outputs
@@ -234,6 +255,16 @@ class Tx(Corner):
         for signature in self.signatures:
             res += signature.raw
         return res
+
+
+def decode_Tx(raw):
+    """
+    Decodes a raw Tx
+    
+    :param raw: bytes
+    :returns: Tx
+    """
+    pass
 
 
 class Block(Logger):
