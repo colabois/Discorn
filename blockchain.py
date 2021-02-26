@@ -8,12 +8,13 @@ import os
 import time
 import string
 from merklelib import MerkleTree
+string
 
 
 def fast_hash(data: bytes):
     """
     Hashing function used for Corner hashes.
-    
+
     :param data: bytes
     :return: str
     """
@@ -23,7 +24,7 @@ def fast_hash(data: bytes):
 def get_hash(data: bytes, hash_func=hashlib.sha256):
     """
     Hashing function used in key pairs.
-    
+
     :param hash_func: function
     :param data: bytes
     :return: bytes
@@ -35,21 +36,27 @@ def get_hash(data: bytes, hash_func=hashlib.sha256):
 
 class Address:
     """Address object"""
-    def __init__(self):
-        pass
 
+    def __init__(self, data):
+        self.raw = data if len(data) == 28 else base58.b58(data, base58.BITCOIN_ALPHABET)
+
+    @property
+    def raw(self):
+        return base58.b58decode(self.data, base58.BITCOIN_ALPHABET)
 
 class SK:
     """Signing Key object"""
+
     def __init__(self, sk: ecdsa.SigningKey = None):
         """
         Generates a new Signing Key if sk is None.
 
-        :type sk: object
+        :type sk: ecdsa.SigningKey
         """
         self._sk = sk
         if self._sk is None:
-            self._sk = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256)
+            self._sk = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1,
+                                                 hashfunc=hashlib.sha256)
         self._vk = self._sk.verifying_key
         self.vk = VK(self._vk)
         self.address = self.vk.address
@@ -62,30 +69,31 @@ class SK:
         :param data: bytes
         :return: Signature
         """
-        return Signature(self._sk.sign(pycryptonight.cn_fast_hash(data)), self.vk)
+        return Signature(self._sk.sign(pycryptonight.cn_fast_hash(data)),
+                         self.vk)
 
     @property
     def raw(self):
         """
         Raw representation of SK based on the Discorn Protocol.
-        
+
         :return: bytes
         """
         return self._sk.to_string()
 
+    def from_raw(raw: bytes):
+        """
+        Decodes a raw Signing Key.
 
-def decode_SK(raw: bytes):
-    """
-    Decodes a raw Signing Key.
-    
-    :param raw: bytes
-    :return: SK
-    """
-    return SK(ecdsa.SigningKey.from_string(raw))
+        :param raw: bytes
+        :return: SK
+        """
+        return SK(ecdsa.SigningKey.from_string(raw))
 
 
 class VK:
     """Verifying Key object"""
+
     def __init__(self, vk: ecdsa.VerifyingKey):
         """
         Initialise a Verifying Key instance.
@@ -93,7 +101,8 @@ class VK:
         :param vk: ecdsa.VerifyingKey
         """
         self._vk = vk
-        address = get_hash(pycryptonight.cn_fast_hash(self._vk.to_string()), RIPEMD160.new)
+        address = get_hash(pycryptonight.cn_fast_hash(self._vk.to_string()),
+                           RIPEMD160.new)
         self.address = address + pycryptonight.cn_fast_hash(address)[:8]
         self.b58 = base58.b58encode(self.address, base58.BITCOIN_ALPHABET)
 
@@ -115,18 +124,21 @@ class VK:
         return self._vk.to_string()
 
 
-def decode_VK(raw):
-    """
-    Decodes a raw Verifying key
-    
-    :param raw: bytes
-    :return: VK
-    """
-    return VK(ecdsa.VerifyingKey.from_string(raw, curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256))
+    def from_raw(raw):
+        """
+        Decodes a raw Verifying key
+
+        :param raw: bytes
+        :return: VK
+        """
+        return VK(ecdsa.VerifyingKey.from_string(raw,
+                                                curve=ecdsa.SECP256k1,
+                                                hashfunc=hashlib.sha256))
 
 
 class Signature:
     """Signature object"""
+
     def __init__(self, signature: bytes, vk: VK):
         """
         Initialises a Signature instance.
@@ -155,20 +167,20 @@ class Signature:
         """
         return self.vk.verify(self.signature, data)
 
+    def from_raw(raw):
+        """
+        Decodes a raw Signature.
 
-def decode_Signature(raw):
-    """
-    Decodes a raw Signature.
-
-    :param raw: bytes
-    :return: Signature
-    """
-    return Signature(raw[64:], decode_VK(raw[:64]))
+        :param raw: bytes
+        :return: Signature
+        """
+        return Signature(raw[64:], VK.from_raw(raw[:64]))
 
 
 class Corner:
     flag = -1
     """Corner object"""
+
     def __init__(self, flag=-1):
         """
         This function has to be overloaded.
@@ -198,13 +210,13 @@ class Corner:
         """
         return b''
 
-def decode_Corner(raw):
-    """
-    Decodes a raw Corner
-    
-    :param raw: bytes
-    :return: Corner
-    """
+    def from_raw(raw):
+        """
+        Decodes a raw Corner
+
+        :param raw: bytes
+        :return: Corner
+        """
 
 
 class Input:
@@ -215,6 +227,7 @@ class Input:
 class Tx(Corner):
     flag = 0
     """Transaction object"""
+
     def __init__(self, version=0, inputs=None, outputs=None, signatures=None):
         """
         Initialise a transaction object.
@@ -232,7 +245,7 @@ class Tx(Corner):
     @property
     def body(self):
         """
-        Raw representation of Transaction payload based on the Discorn Protocol (without signatures)
+        Raw representation of Transaction payload (without sig)
 
         :return: bytes
         """
@@ -260,7 +273,7 @@ class Tx(Corner):
 def decode_Tx(raw):
     """
     Decodes a raw Tx
-    
+
     :param raw: bytes
     :returns: Tx
     """
@@ -273,7 +286,7 @@ class Block(Logger):
     NONCE_SIZE = 4
 
     def __init__(self,
-                 blockchain = None,
+                 blockchain=None,
                  name: str = 'block',
                  height: int = 0,
                  version: int = 0,
@@ -378,10 +391,10 @@ class Block(Logger):
 class BlockChain(Logger):
     """BlockChain data model."""
 
-    def __init__(self, name:str = 'Main'):
+    def __init__(self, name: str = 'Main'):
         """
         Initialises a Blockchain instance.
-        
+
         :param name: str | Used in logs
         :return: None
         """
@@ -394,7 +407,7 @@ class BlockChain(Logger):
     def new_head(self, block: Block):
         """
         Sets the given block as the new Blockchain head.
-        
+
         :param block: Block
         :return: None
         """
@@ -404,29 +417,40 @@ class BlockChain(Logger):
 
     def get_block_template(self):
         """
-        Get a Block instance to be mined based on the current chainstate and pending Corners.
-        
+        Get a Block instance to be mined based on the current chainstate.
+
         :returns: Block
         """
         block = Block(self,
-                      corners=[corner for corner in self.unconfirmed_corners.items()],
+                      corners=[
+                          corner for corner in self.unconfirmed_corners.items()],
                       timestamp=time.time_ns(),
                       previous_hash=self.block_hashes[-1])
+        return block
 
-    def check_tx(self, tx):  # TODO: Check that the fee is positive ; Inputs exist and are not spent ;
+    def check_tx(self, tx):  # TODO: Check that the fee is positive,
+        # Inputs exist and are not spent ;
         pass
 
-    def check_block(self, block):  # TODO: * Check output value for Coinbase and check every other Corner
+    def check_block(self, block):  # TODO: * Check output value for Coinbase
+        # and check every other Corner
         res = block.previous_hash in self.blocks
-        res = res and int.from_bytes(block.get_hash(), 'big') >= (1 << (256 - block.difficulty))
+        res = res and int.from_bytes(block.get_hash(), 'big') >= (
+            1 << (256 - block.difficulty))
         return res
 
 
 class Guild(Logger):
     """Guild object"""
-    def __init__(self, vk=None, sk=None, genesis=None, chain=None, name='Main-Guild'):
+
+    def __init__(self,
+                 vk=None,
+                 sk=None,
+                 genesis=None,
+                 chain=None,
+                 name='Main-Guild'):
         """
-        Initialises a Guild instance with a new chain and private key or given ones.
+        Initialises a Guild instance with a chain and private key.(new if None)
         """
         super().__init__(name)
         if vk is None:
@@ -444,7 +468,7 @@ class Guild(Logger):
             self.chain.new_head(genesis)
         else:
             self.chain = chain
-    
+
     @property
     def raw(self):
         return self.vk.address + self.chain.blocks[self.chain.block_hashes[0]].header
