@@ -50,7 +50,7 @@ pipeline {
 
         stage('Build Documentation') {
             steps {
-                sh 'make doc'
+                sh 'make docs'
                 sh 'mkdir -p ${ARTIFACTS}/doc'
                 sh 'tar -C doc/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
             }
