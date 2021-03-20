@@ -2,14 +2,11 @@
 -----------------
 Discorn is an **encrypted and decentralized chatting** protocol based on cryptocurrencies. test
 
-```python
- test
-```
-#Table of contents :
+# Table of contents :
 * [Why ?](#Why)
 * [How ?](#How)
 * [Using Discorn](#Using)
-* Python implementation
+* [Python implementation](#PyImplementation)
     * Library
     * Qt App
 * Protocol Documentation
@@ -57,11 +54,22 @@ The Blockchain's proof of work algorithm is Cryptonight, as we believe cpu-minin
 ---------------
 Discorn is still in Developpement phase. It is absolutely not usable in any way.
 
-#Python Implementation
+#Python Implementation <a name="user-content-PyImplementation"></a>
 ----------------------
 
-## Installation
+## Installation (Pipenv)
 
+``` bash
+~ git clone https://moriya.zapto.org/gitsokyo/Discorn/Discorn.git
+~ cd Discorn
+~ pipenv install
+```
+
+## Qt Gui
+``` bash
+~ python -m Gui.main
+```
+![test](MD-Assets/Wallet.png)
 
 
 # Peer to Peer (P2P) Communication: <a name="user-content-P2P"></a>
@@ -72,7 +80,5 @@ Discorn is still in Developpement phase. It is absolutely not usable in any way.
 Connections are made over **TCP**, [test](https://moriya.zapto.org)
 
 
-### 1 — Ping: {#test}
-Send a ping request to foreign host  
-this is is a soft break
->>>>>>> b77d057... Populating Readme.md
+### 1 — Ping:
+Send a ping request to foreign host
