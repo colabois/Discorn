@@ -7,11 +7,11 @@ Discorn is an **encrypted and decentralized chatting** protocol based on cryptoc
 * [How ?](#How)
 * [Using Discorn](#Using)
 * [Python implementation](#PyImplementation)
-    * Library
-    * Qt App
-* Protocol Documentation
-    * Blockchain documentation
-    * [Peer to Peer communication](#P2P)
+    * Installation
+    * Qt Gui
+* [Protocol Documentation](#protocol-doc)
+    * [Blockchain documentation](#blockchain-doc)
+    * [Peer to Peer communication](#P2P-doc)
 
 # Why ? <a name="user-content-Why"></a>
 -------
@@ -54,7 +54,7 @@ The Blockchain's proof of work algorithm is Cryptonight, as we believe cpu-minin
 ---------------
 Discorn is still in Developpement phase. It is absolutely not usable in any way.
 
-#Python Implementation <a name="user-content-PyImplementation"></a>
+# Python Implementation <a name="user-content-PyImplementation"></a>
 ----------------------
 
 ## Installation (Pipenv)
@@ -69,11 +69,18 @@ Discorn is still in Developpement phase. It is absolutely not usable in any way.
 ``` bash
 ~ python -m Gui.main
 ```
-![test](MD-Assets/Wallet.png)
+
+Here's how it looks so far.  
+![GUI Screenshot](MD-Assets/Wallet.png)
 
 
-# Peer to Peer (P2P) Communication: <a name="user-content-P2P"></a>
------------------------------------
+# Protocol Documentation <a name="user-content-protocol-doc"></a>
+------------------------
+
+## Blockchain <a name="user-content-blockchain-doc"></a>
+
+## Peer to Peer (P2P) Communication: <a name="user-content-P2P-doc"></a>
+
 
 ### Sending Data:
 - #### IPV4

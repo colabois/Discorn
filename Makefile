@@ -1,4 +1,4 @@
-all: ui docs
+all: ui
 
 ui :
 	$(MAKE) -C Gui/ _ui

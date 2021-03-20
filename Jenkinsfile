@@ -19,6 +19,17 @@ pipeline {
         WEBHOOK_URL = credentials('webhook_discorn')
     }
     stages {
+        stage('Install Dependencies') {
+            steps {
+                sh 'pipenv sync --verbose --sequential --dev'
+            }
+        }
+        stage('Build sources') {
+            steps {
+                sh 'make -j4'
+            }
+        }
+
         stage('Generate release archives') {
             steps {
                 sh 'git clean -fxd'
@@ -28,7 +39,7 @@ pipeline {
                 sh 'echo .artifacts >> .releaseignore'
                 sh 'rsync -avr --exclude-from=.releaseignore ${RELEASE_ROOT}/ /tmp/build'
                 sh 'tar -C /tmp/build -cvzf ${ARTIFACTS}/build/${TAG_NAME:-${GIT_BRANCH#*/}}.tar.gz --owner=0 --group=0 .'
-                sh 'cd /tmp/build && zip ${ARTIFACTS}/build/${TAG_NAME:-${GIT_BRANCH#*/}}.zip -r .'            
+                sh 'cd /tmp/build && zip ${ARTIFACTS}/build/${TAG_NAME:-${GIT_BRANCH#*/}}.zip -r .'
             }
             post {
                 always {
@@ -37,9 +48,19 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build Documentation') {
             steps {
-                sh 'pipenv sync --verbose --sequential --dev'
+                sh 'make doc'
+                sh 'mkdir -p ${ARTIFACTS}/doc'
+                sh 'tar -C doc/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: ".artifacts/doc/*", fingerprint: true
+                }
+                failure {
+                    sh 'cat doc/sphinx-build.log'
+                }
             }
         }
 
@@ -50,23 +71,6 @@ pipeline {
             post {
                 always {
                     junit 'test-reports/results.xml' 
-                }
-            }
-        }
-
-        stage('Build Documentation') {
-            steps {
-                sh '''cd doc
-                pipenv run make html'''
-                sh 'mkdir -p ${ARTIFACTS}/doc'
-                sh 'tar -C doc/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: ".artifacts/doc/*", fingerprint: true
-                }
-                failure {
-                    sh 'cat doc/sphinx-build.log'
                 }
             }
         }
