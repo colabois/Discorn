@@ -16,7 +16,7 @@ Discorn is an **encrypted and decentralized chatting** protocol based on cryptoc
     * Blockchain documentation
     * [Peer to Peer communication](#P2P)
 
-# Why ? <a name="Why"></a>
+# Why ? <a name="user-content-Why"></a>
 -------
 Computers bring with them a brand new problem : **It has become hard to get forgotten.**  
 Everything one shares with a company over the internet is potentially stored forever.  
@@ -43,7 +43,7 @@ Privacy is the main one.
 Discorn is mainly inspired by Discord, as we find that Discord is more or less the way chatting app should look like.
 But Discorn is **open-source** and **decentralized** this means that people will be able to mod Discorn as they wish with no fear of getting banned, and potentially will have more features than Discord.
 
-# How ? <a name="How"></a>
+# How ? <a name="user-content-How"></a>
 -------
 Discorn is inspired by Bitcoin, Cryptonote and Discord, so we will use concepts from them.
 
@@ -53,7 +53,7 @@ To each Guild is attached a **Blockchain** and **Cryptocurrency** and a **Databa
 The Blockchain's proof of work algorithm is Cryptonight, as we believe cpu-mining is what we should aim for.
 
 
-# Using Discorn <a name="Using"></a>
+# Using Discorn <a name="user-content-Using"></a>
 ---------------
 Discorn is still in Developpement phase. It is absolutely not usable in any way.
 
@@ -64,7 +64,7 @@ Discorn is still in Developpement phase. It is absolutely not usable in any way.
 
 
 
-# Peer to Peer (P2P) Communication: <a name="P2P"></a>
+# Peer to Peer (P2P) Communication: <a name="user-content-P2P"></a>
 -----------------------------------
 
 ### Sending Data:
