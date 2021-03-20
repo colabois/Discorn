@@ -21,6 +21,7 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
+                sh 'git clean -fxd'
                 sh 'pipenv sync --verbose --sequential --dev'
             }
         }
@@ -32,7 +33,6 @@ pipeline {
 
         stage('Generate release archives') {
             steps {
-                sh 'git clean -fxd'
                 sh 'mkdir -p ${ARTIFACTS}/build'
                 sh 'mkdir -p /tmp/build'
                 sh 'pipenv lock -r | tee ${RELEASE_ROOT}/requirements.txt'

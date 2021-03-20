@@ -1,1 +1,5 @@
 tests/
+.gitignore
+.releaseignore
+Dockerfile
+Jenkinsfile
