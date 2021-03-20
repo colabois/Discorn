@@ -1,3 +1,4 @@
+PIPENV = pipenv
 all: ui
 
 ui :
@@ -8,4 +9,4 @@ clean :
 	$(MAKE) -C doc/ clean
 
 docs :
-	$(MAKE) -C doc/ html
+	$(PIPENV) run $(MAKE) -C doc/ html
