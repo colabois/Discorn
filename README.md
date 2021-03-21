@@ -83,9 +83,87 @@ Here's how it looks so far.
 
 
 ### Sending Data:
+### Message structure:
+
+|Field       |Type          |Description       |Length |
+|------------|--------------|------------------|-------|
+|Version     |big-endian int|Message version   |2 bytes|
+|Payload flag|big-endian int|Payload identifier|2 bytes|
+|Payload     |raw           |                  |       |
+
 - #### IPV4
-Connections are made over **TCP**, [test](https://moriya.zapto.org)
+    Connections are made over **TCP**.  
+    Messages are **sliced in chunks** of `CHUNK_SIZE=1024` length
+    Chunks are sent **one after the other** over the TCP connection following this pattern :
+
+    |Field |Type          |Description                                        |Length |
+    |------|--------------|---------------------------------------------------|-------|
+    |Length|big-endian int|Chunk length (MSB first) **if not final** or `FFFF`|2 bytes|
+    |Data  |raw           |Actual chunk data                                  |       |
 
 
-### 1 — Ping:
-Send a ping request to foreign host
+
+
+##Payloads :
+
+* ### 1 — Ping:
+ Send a ping request to Peer.  
+ **Expected behaviour**: Send a pong message with the same `id`.
+
+    |Field|Type          |Description|Length |
+    |-----|--------------|-----------|-------|
+    |id   |big-endian int|           |2 bytes|
+
+* ### 2 — Pong:
+ Respond to a ping request from Peer.  
+ **Expected behaviour**: None.
+
+    |Field|Type          |Description|Length |
+    |-----|--------------|-----------|-------|
+    |id   |big-endian int|           |2 bytes|
+
+* ### 3 — Heartbeat:
+ Notify a Peer that the sender is still up. (should be sent `BPM` times per minute)  
+ **Expected behaviour**: Disconnect if no heartbeat was sent for `TIMEOUT/BPM`
+
+    |Field|Type          |Description|Length |
+    |-----|--------------|-----------|-------|
+
+* ### 4 — Getguild:
+ Initiate the **Guild Challenge** sequence.  
+ (remote gives a salt &rarr;
+ local hashes the guild with the salt &rarr;
+ remote checks if any of his guilds matches)  
+ **Expected behaviour**: Send a Sendguildchallenge with the same `id` and a one time salt.
+
+    |Field|Type          |Description|Length  |
+    |-----|--------------|-----------|--------|
+    |id   |big-endian int|           |2 bytes |
+
+* ### 5 — Sendguildchallenge:
+ Sends a salt for the **Guild Challenge** sequence  
+ **Expected behaviour**: Send a Solveguildchallenge message with a hash of `raw guild+salt`.
+
+    |Field|Type          |Description|Length  |
+    |-----|--------------|-----------|--------|
+    |id   |big-endian int|           |2 bytes |
+    |Salt |raw           |Random data|16 bytes|
+
+* ### 6 — Solveguildchallenge:
+ Send a hash of `raw guild+salt`  
+ **Expected behaviour**: Send a Endguildchallenge message
+
+    |Field|Type          |Description            |Length  |
+    |-----|--------------|-----------------------|--------|
+    |id   |big-endian int|                       |2 bytes |
+    |Hash |raw           |`raw guild + salt` hash|32 bytes|
+ 
+* ### 7 — Endguildchallenge:
+ Notifies successful or failed challenge.  
+ **Expected behaviour**: if successful, both Peers should now use the **salted hash** to reference the common Guild.
+
+    |Field  |Type          |Description    |Length |
+    |-------|--------------|---------------|-------|
+    |id     |big-endian int|               |2 bytes|
+    |Success|big-endian int|0 if successful|1 byte |
+
