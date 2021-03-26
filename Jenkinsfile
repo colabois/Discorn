@@ -91,7 +91,7 @@ pipeline {
                     sh '''rsync -aze 'ssh -o StrictHostKeyChecking=no -o BatchMode=yes' \
                     --log-file=rsync-doc.log \
                     --delete \
-                    doc/build/html/ ${DEPLOY_HOST}:${DEPLOY_DOC_PATH}${TAG_NAME:-${GIT_BRANCH#*/}}/'''
+                    doc/sphinx_src/build/html/ ${DEPLOY_HOST}:${DEPLOY_DOC_PATH}${TAG_NAME:-${GIT_BRANCH#*/}}/'''
                 }
             }
             post {
