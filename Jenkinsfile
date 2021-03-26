@@ -50,16 +50,16 @@ pipeline {
 
         stage('Build Documentation') {
             steps {
-                sh 'make docs'
+                sh 'make sphinx'
                 sh 'mkdir -p ${ARTIFACTS}/doc'
-                sh 'tar -C doc/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
+                sh 'tar -C doc/sphinx_src/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
             }
             post {
                 success {
                     archiveArtifacts artifacts: ".artifacts/doc/*", fingerprint: true
                 }
                 failure {
-                    sh 'cat doc/sphinx-build.log'
+                    sh 'cat doc/sphinx_src/sphinx-build.log'
                 }
             }
         }

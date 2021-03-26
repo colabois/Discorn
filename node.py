@@ -30,7 +30,7 @@ class Node(Logger):
         if self.serve:
             asyncio.ensure_future(self.listen())
 
-        #Main Loop
+        # Main Loop
         while True:
             await asyncio.sleep(60)
 
@@ -170,24 +170,24 @@ class Peer(Logger):
 
     async def parse_heartbeat(self, data):
         self.last_heartbeat = time.time()
-    
+
     async def getguilds(self):
         await self.send((4).to_bytes(2, 'big'))
-    
+
     async def parse_getguilds(self, data):
         for _, guild in self.node.guilds.items():
             await self.newguild(guild)
-    
+
     async def newguild(self, guild):
         await self.send((5).to_bytes(2, 'big') + guild.raw)
-    
+
     async def parse_newguild(self, data):
         self.guilds.update({data: None})
         await self.getchainstatus(data)
-    
+
     async def disconnecting(self, mess):
         await self.send((6).to_bytes(2, 'big') + mess)
-    
+
     async def parse_disconnecting(self, data):
         self.error(f"Remote closing connection : {data.decode('utf-8')} - Disconnecting.")
         self.disconnect()
@@ -217,10 +217,8 @@ class Peer(Logger):
         self.log(self.guilds)
 
 
-
-
 if __name__ == '__main__':
     node = Node()
     g = blockchain.Guild()
-    node.guilds.update({g.raw:g})
+    node.guilds.update({g.raw: g})
     node.run()
