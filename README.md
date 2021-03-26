@@ -79,6 +79,36 @@ Here's how it looks so far.
 
 ## Blockchain <a name="user-content-blockchain-doc"></a>
 
+### Block
+A block is seperated in header and body to allow for fast chain downloading.  
+
+
+|Field        |Type                |Description                                                   |Length  |
+|-------------|--------------------|--------------------------------------------------------------|--------|
+|Version      |big-endian int      |Block version                                                 |1 byte  |
+|Timestamp    |big-endian int      |                                                              |4 bytes |
+|Corner count |big-endian int      |Number of Corners included                                    |3 bytes |
+|Merkle root  |cryptonote-fast-hash|Root hash of Corners mekrle tree                              |32 bytes|
+|Previous hash|cryptonote-slow-hash|Hash of previous block                                        |32 bytes|
+|Difficulty   |big-endian int      |The calculated difficulty target being used for this block    |4 bytes |
+|Nonce        |raw                 |To allow variations of the header and compute different hashes|4 bytes |
+|             |                    |                                                              |        |
+|             |                    |                                                              |        |
+|             |                    |                                                              |        |
+|             |                    |                                                              |        |
+|Reward corner|Corner              |Special Corner that has outputs without inputs.               |        |
+|Corners      |Corner list         |Corners one after the other                                   |        |
+
+### Corner
+A Corner is an enveloppe for several kind of payloads (such as Transactions like in Bitcoin)
+
+|Field       |Type          |Description       |Length |
+|------------|--------------|------------------|-------|
+|Version     |big-endian int|Message version   |2 bytes|
+|Payload flag|big-endian int|Payload identifier|2 bytes|
+|Payload     |raw           |                  |       |
+
+
 ## Peer to Peer (P2P) Communication: <a name="user-content-P2P-doc"></a>
 
 
@@ -104,7 +134,7 @@ Here's how it looks so far.
 
 
 
-## Payloads :
+## Network Payloads :
 
 ### 1 — Ping:
 Send a ping request to Peer.  
@@ -150,7 +180,7 @@ Sends a salt for the **Guild Challenge** sequence
 |Salt |raw           |Random data|16 bytes|
 
 ### 6 — Solveguildchallenge:
-Send a hash of `raw guild+salt`  
+Send a hash of `raw guild+salt` from now on, the salted hash will be called RawGuildChallenge  
 **Expected behaviour**: Send a Endguildchallenge message
 
 |Field|Type          |Description            |Length  |
@@ -160,10 +190,37 @@ Send a hash of `raw guild+salt`
 
 ### 7 — Endguildchallenge:
 Notifies successful or failed challenge.  
-**Expected behaviour**: if successful, both Peers should now use the **salted hash** to reference the common Guild.
+**Expected behaviour**: if successful, both Peers should now use the **salted hash** to reference the common Guild and every exchange about that guild should be **AES encrypted with the raw guild hash** (without salt) as a key.
 
 |Field  |Type          |Description    |Length |
 |-------|--------------|---------------|-------|
 |id     |big-endian int|               |2 bytes|
 |Success|big-endian int|0 if successful|1 byte |
 
+### 8 — Newhead \[Guild]
+Notifies remote of a new chain head. (Doesn't send the block, just height and hash)
+
+|Field |Type             |Description                        |Length  |
+|------|--------------   |-----------------------------------|--------|
+|Guild |RawGuildChallenge|One time Guild identifier          |32 bytes|
+|      |                 | *Following data is AES encrypted* |        |
+|Height|big-endian int   |New head's height                  |4 bytes |
+|Hash  |raw              |New head's hash                    |32 bytes|
+
+### 9 — Getblockheader \[Guild]
+Ask remote the block header of the given height
+
+|Field |Type          |Description                      |Length  |
+|------|--------------|---------------------------------|--------|
+|Guild|RawGuildChallenge|One time Guild identifier      |32 bytes|
+|      |              |*Following data is AES encrypted*|        |
+|Height|big-endian int|Requested height                 |4 bytes |
+
+### 10 — Blockheader \[Guild]
+Sends remote a block header.
+
+|Field |Type             |Description                       |Length  |
+|------|-----------------|----------------------------------|--------|
+|Guild |RawGuildChallenge|One time Guild identifier         |32 bytes|
+|      |                 | *Following data is AES encrypted*|        |
+|Header|Block Header     |Requested height                  |4 bytes |

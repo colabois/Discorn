@@ -49,7 +49,8 @@ class Node(Logger):
             ip, port = arg1, arg2
         else:
             ip, port = arg1.split(":")
-        asyncio.ensure_future(Peer(*(await asyncio.open_connection(ip, port)), self).in_handler())
+        asyncio.ensure_future(Peer(*(await asyncio.open_connection(ip, port)),
+                                   self).in_handler())
 
 
 class Peer(Logger):
