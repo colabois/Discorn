@@ -32,7 +32,7 @@ pipeline {
         }
         stage('Build Python Documentation') {
             steps {
-                sh 'make sphinx'
+                sh 'make sphinx -j4'
                 sh 'mkdir -p ${ARTIFACTS}/doc'
                 sh 'tar -C doc/sphinx_src/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
             }
@@ -47,7 +47,7 @@ pipeline {
         }
         stage('Build Protocol Documentation') {
             steps {
-                sh 'make latex'
+                sh 'make latex -j4'
                 sh 'mkdir -p ${ARTIFACTS}/doc/latex'
                 sh 'cp doc/LaTeX_src/*.pdf ${ARTIFACTS}/doc/latex/ '
             }

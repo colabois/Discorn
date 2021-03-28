@@ -1,5 +1,5 @@
 PIPENV = pipenv
-all: ui
+all: ui docs
 
 ui:
 	$(MAKE) -C Gui/ _ui
