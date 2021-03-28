@@ -3,7 +3,8 @@ PDFLATEX = pdflatex --shell-escape -synctex=1 -interaction=nonstopmode
 
 %.pdf : %.tex
 	$(PDFLATEX) $<
-	$(PDFLATEX) $< # Run twice for the table of contents
+	$(PDFLATEX) $<
+	$(PDFLATEX) $< # Run three times to render correctly.
 
 pdf : $(TEX:.tex=.pdf)
 

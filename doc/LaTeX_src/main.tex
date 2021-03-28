@@ -8,6 +8,7 @@
 \usepackage{tabularx}
 \usepackage{mathtools}
 \usepackage{tikz}
+\usepackage[hidelinks]{hyperref}
 \usetikzlibrary{positioning}
 
 \renewcommand{\tabularxcolumn}[1]{m{#1}}
@@ -46,7 +47,7 @@
          \item We dislike centralized software because it creates a single point of failure that governments can control
          if they please and because it relies on trust of a single third party.
         
-        \item And we dislike federated software as well because it is a hassle to create a local instance : it requires web-related
+         \item And we dislike federated software as well because it is a hassle to create a local instance : it requires web-related
          knowledge, a domain name, and the hardware to make it run. If one doesn't want to create a local instance because of all of that,
          then he has to trust a third party for his privacy. Which could be worse than the centralized alternative in some cases.
          We have been lead towards Matrix when our first ideas of Discorn emerged and yes, it does allow for chatting channels, VoIP and some kind of Guildish features.
@@ -66,31 +67,33 @@
     
         \subsection{Block}
             To be valid, a block's hash must begin with a certain number of zeros. \\
-            Let $X$ be the number of random hashes to mine a block with difficulty $d$, $X$ follows a geometric distribution : $Geo(\frac{1}{2^d})$. Hence : $\mathbb{E}(X)= 2^d$
-            
-            \begin{tikzpicture}[blocknode/.style={rectangle, draw=black, thick, minimum size=7mm},
-                                floatingnode/.style={rectangle, minimum size=7mm},]
-                \node[floatingnode] (0) {};
-                \node[blocknode] (1) [right=of 0] {$\begin{matrix}\text{Block $n$}\\t_n\end{matrix}$};
-                \node[blocknode] (2) [right= of 1] {$\begin{matrix}\text{Block $n+1$}\\t_{n+1}\end{matrix}$};
-                \node[floatingnode] (3) [right= of 2] {...};
-                \node[blocknode] (4) [right= of 3] {$\begin{matrix}\text{Block $n+k-1$}\\t_{n+k-1}\end{matrix}$};
-                \node[floatingnode] (5) [right= of 4] {};
-                \draw[thick,->] (0.east) -- (1.west);
-                \draw[thick,->] (1.east) -- (2.west);
-                \draw[thick,->] (2.east) -- (3.west);
-                \draw[thick,->] (3.east) -- (4.west);
-                \draw[thick,->] (4.east) -- (5.west);
-            \end{tikzpicture}\\
+            Let $X$ be the number of random hashes to mine a block with difficulty $d$, $X$ follows a geometric distribution : $Geo(\frac{1}{2^d})$. Hence : $\mathbb{E}(X)= 2^d$\\
+            \begin{figure}[h]\centering
+                \begin{tikzpicture}[blocknode/.style={rectangle, draw=black, thick, minimum size=7mm},
+                                    floatingnode/.style={rectangle, minimum size=7mm}, node distance=0.5cm]
+                    \node[floatingnode] (0) {...};
+                    \node[blocknode] (1) [right=of 0] {$\begin{matrix}\text{Block $n$}\\t_n\end{matrix}$};
+                    \node[blocknode] (2) [right= of 1] {$\begin{matrix}\text{Block $n+1$}\\t_{n+1}\end{matrix}$};
+                    \node[floatingnode] (3) [right= of 2] {...};
+                    \node[blocknode] (4) [right= of 3] {$\begin{matrix}\text{Block $n+k-1$}\\t_{n+k-1}\end{matrix}$};
+                    \node[floatingnode] (5) [right= of 4] {...};
+                    \draw[thick,->] (0.east) -- (1.west);
+                    \draw[thick,->] (1.east) -- (2.west);
+                    \draw[thick,->] (2.east) -- (3.west);
+                    \draw[thick,->] (3.east) -- (4.west);
+                    \draw[thick,->] (4.east) -- (5.west);
+                \end{tikzpicture}\caption{Blocks time interval.}\label{fig:Bti}
+            \end{figure}\\
             
             Let $\Delta t$ be the average time interval between two blocks over a $k$ blocks interval.
-            
+            As seen in Fig \ref{fig:Bti}.
             \begin {align*}
              \Delta t = \frac{t_{n+k-1} - t_n}{k}
             \end {align*}
 
             
             To estimate the network's hashrate $N$ $[hash.s^{-1}]$, we use the following expression\\
+            
             
             \begin {align*}
                 &\text{}N = \frac{k\mathbb{E}(X)}{\Delta t} = \frac{k2^d}{\Delta t}\\
@@ -99,7 +102,9 @@
                 &\Leftrightarrow 2^{d_{next}} = \frac{N{\Delta t}_{target}}{k}\\
                 &\Leftrightarrow d_{next} = \left\lfloor\log_2\left(\frac{{\Delta t}_{target}}{k}\right)\right\rfloor
             \end {align*}\\
-            \begin{tabularx}{\textwidth}{|l|l|X|l|}
+            
+            
+            \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
             \hline Version & big-endian int & Block version & 1 byte \\
             \hline Timestamp & big-endian int & & 4 bytes\\
@@ -114,6 +119,7 @@
             \hline
             \end{tabularx}
         
+        
         \subsection{Corner}
            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
@@ -122,7 +128,9 @@
             \hline Payload & raw & & \\
             \hline
             \end{tabularx}
-            \subsubsection{Transaction (Tx) :  $P_{Flag} = 0$}
+            
+            
+            \subsubsection{Transaction (Tx):  $P_{Flag} = 0$}
                 \begin{tabularx}{\textwidth}{|l|l|X|l|}
                 \hline Field & Type & Description & Length \\ \hline
                 \hline Version & big-endian int & Tx version & 1 byte \\
@@ -130,25 +138,31 @@
                 \hline Input Puzzles & Input list & Transaction's inputs & \\
                 \hline Output count & big-endian int & Number of Outputs included & 3 bytes\\
                 \hline Output Puzzles & Puzzle list & Transaction's outputs & \\
-                \hline Solutions & Solution list & To unlock each input, a Challenge has to be solved. & \\
+                \hline Solutions & Solution list & To unlock each input, a Puzzle has to be solved. & \\
                 \hline
                 \end{tabularx}
-            \subsubsection{Event : $P_{Flag} = 1$}
+            
+            
+            \subsubsection{Event: $P_{Flag} = 1$}
                 \begin{tabularx}{\textwidth}{|l|l|X|l|}
                 \hline Field & Type & Description & Length \\ \hline
                 \hline Version & big-endian int & Event version & 1 byte \\
                 \hline Hash & cryptonote-fast-hash & Event hash as in the event database & 32 Bytes\\
                 \hline Authorization & Auth & Proof that the Event is legitimate & \\
                 \hline
-                \end{tabularx}
+                \end{tabularx}\\
+        
+        
         \subsection{Input (Tx)}
            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
-            \hline Payload length & big-endian int &  & 3 bytes \\
-            \hline Payload flag ($P_{Flag}$) & big-endian int &  & 1 byte \\
+            \hline Hash & cryptonote-fast-hash & Input transaction's hash & 32 bytes \\
+            \hline Index & big-endian int & Index of the specific output in the transaction & 3 byte \\
             \hline Payload & raw & & \\
-            \hline
+            \hline 
             \end{tabularx}
+        
+        
         \subsection{Puzzles \& Solutions (Tx)}
            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
@@ -157,7 +171,101 @@
             \hline Payload & raw & & \\
             \hline
             \end{tabularx}
-            \subsubsection{}
+            \subsubsection{Single: $P_{flag} = 0$}
+                \begin{itemize}
+                 \item Puzzle:\\
+                    
+                    \begin{tabularx}{\textwidth}{|l|l|X|l|}
+                        \hline Field & Type & Description & Length \\ \hline
+                        \hline Recipient address & Single-address &  & 3 bytes \\
+                        \hline
+                    \end{tabularx}
+                 \item Solution:\\
+                 
+                    \begin{tabularx}{\textwidth}{|l|l|X|l|}
+                        \hline Field & Type & Description & Length \\ \hline
+                        \hline Verifying key & VK &  & 64 bytes \\
+                        \hline Tx Signature & Signature & Signature of the whole transaction without the Solutions part & 1 byte \\
+                        \hline
+                    \end{tabularx}
+                \end{itemize}
+
+                
 
     \section{Networking}
+        \subsection{Sending data}
+            Message structure is as follows :\\
+            \begin{tabularx}{\textwidth}{|l|l|X|l|}
+                \hline Field & Type & Description & Length \\ \hline
+                \hline Version & big-endian int & Message version & 2 bytes \\
+                \hline Payload flag & big-endian int & Payload identifier & 2 bytes \\
+                \hline Payload & raw &  & \\
+                \hline
+            \end{tabularx}
+            \subsubsection{IPV4}
+                Connections are made over TCP.\\
+                Messages are sliced in chunks of length CHUNK\_SIZE$=1024$.\\
+                Chunks are sent one after the other over the TCP connection following this pattern:
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Length & big-endian int & FFFF if not final, Chunk length otherwise & 2 bytes \\
+                    \hline Data & raw & Chunk data & \\
+                    \hline
+                \end{tabularx}
+        \subsection{Payloads}
+        
+            \subsubsection{Ping: $P_{Flag} = 1$}
+                Send a ping request to remote.\\
+                Expected behaviour: Send a pong message with the same id.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Id & big-endian int & & 2 bytes \\
+                    \hline
+                \end{tabularx}
+            
+            \subsubsection{Pong: $P_{Flag} = 2$}
+                Respond a ping request from remote.\\
+                Expected behaviour: None.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Id & big-endian int & & 2 bytes \\
+                    \hline
+                \end{tabularx}
+            
+            \subsubsection{Heartbeat: $P_{Flag} = 3$}
+                Notify remote that local is still up. (at a rythm of BPM times per minute.)\\
+                Expected behaviour: Disconnect if no heartbeat was sent for $\frac{\text{TIMEOUT}}{\text{BPM}}$.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                \end{tabularx}
+            
+            \subsubsection{Getguild: $P_{Flag} = 4$}
+                Initiate the Guild Challenge sequence.\\
+                \begin{tikzpicture}[blocknode/.style={rectangle, draw=black, thick, minimum size=7mm},
+                                floatingnode/.style={rectangle, minimum size=7mm}, node distance=2cm and 2cm]
+                \node[blocknode] (0-0) {Getguild};
+                \node[floatingnode] (1-0) [below= of 0-0] {};
+                \node[blocknode] (1-1) [right= of 1-0] {Salt};
+                \node[floatingnode] (0-1) [above= of 1-1] {};
+                \node[blocknode] (0-2) [right= of 0-1] {Hash};
+                \node[floatingnode] (1-2) [below= of 0-2] {};
+                \node[blocknode] (1-3) [right= of 1-2] {Success};
+                \node[floatingnode] (0-3) [above= of 1-3] {};
+                \node[floatingnode] (0-4) [right= of 0-3] {};
+                
+                \draw[thick,->] (0-0.south) -- (1-1.west) node[midway,sloped,anchor=north] {Getguild};
+                \draw[thick,->] (1-1.east) -- (0-2.south) node[midway,sloped,anchor=north] {Sendguildchallenge};
+            \end{tikzpicture}\\
+                Expected behaviour: None.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Id & big-endian int & & 2 bytes \\
+                    \hline
+                \end{tabularx}
+
 \end{document}
