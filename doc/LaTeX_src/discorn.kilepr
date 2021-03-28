@@ -20,9 +20,9 @@ QuickBuild=
 
 [item:discorn.kilepr]
 archive=true
-encoding=
-highlight=
-mode=
+encoding=UTF-8
+highlight=None
+mode=Normal
 
 [item:main.tex]
 archive=true

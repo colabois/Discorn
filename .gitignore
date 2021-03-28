@@ -131,7 +131,11 @@ dmypy.json
 # Compiled .ui files
 */ui/*.py
 
-# Kile
+# LaTeX
 doc/LaTeX_src/*.pdf
 doc/LaTeX_src/*.aux
 doc/LaTeX_src/*.synctex.gz
+
+# Kile
+*.kilepr
+*.kilepr.gui

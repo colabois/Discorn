@@ -30,7 +30,36 @@ pipeline {
                 sh 'make -j4'
             }
         }
-
+        stage('Build Python Documentation') {
+            steps {
+                sh 'make sphinx'
+                sh 'mkdir -p ${ARTIFACTS}/doc'
+                sh 'tar -C doc/sphinx_src/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: ".artifacts/doc/*tar.gz", fingerprint: true
+                }
+                failure {
+                    sh 'cat doc/sphinx_src/sphinx-build.log'
+                }
+            }
+        }
+        stage('Build Protocol Documentation') {
+            steps {
+                sh 'make latex'
+                sh 'mkdir -p ${ARTIFACTS}/doc/latex'
+                sh 'cp doc/LaTeX_src/*.pdf ${ARTIFACTS}/doc/latex/ '
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: ".artifacts/doc/latex/*.pdf", fingerprint: true
+                }
+                failure {
+                    sh 'cat doc/LaTeX_src/*.log'
+                }
+            }
+        }
         stage('Generate release archives') {
             steps {
                 sh 'mkdir -p ${ARTIFACTS}/build'
@@ -44,22 +73,6 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: ".artifacts/build/*", fingerprint: true
-                }
-            }
-        }
-
-        stage('Build Documentation') {
-            steps {
-                sh 'make sphinx'
-                sh 'mkdir -p ${ARTIFACTS}/doc'
-                sh 'tar -C doc/sphinx_src/build/html -czf ${ARTIFACTS}/doc/html.tar.gz .'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: ".artifacts/doc/*", fingerprint: true
-                }
-                failure {
-                    sh 'cat doc/sphinx_src/sphinx-build.log'
                 }
             }
         }
@@ -92,6 +105,10 @@ pipeline {
                     --log-file=rsync-doc.log \
                     --delete \
                     doc/sphinx_src/build/html/ ${DEPLOY_HOST}:${DEPLOY_DOC_PATH}${TAG_NAME:-${GIT_BRANCH#*/}}/'''
+                    sh '''rsync -aze 'ssh -o StrictHostKeyChecking=no -o BatchMode=yes' \
+                    --log-file=rsync-doc.log \
+                    --delete \
+                    ${ARTIFACTS}/latex/ ${DEPLOY_HOST}:${DEPLOY_DOC_PATH}$/latex/{TAG_NAME:-${GIT_BRANCH#*/}}/'''
                 }
             }
             post {
