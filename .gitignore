@@ -135,7 +135,7 @@ dmypy.json
 doc/LaTeX_src/*.pdf
 doc/LaTeX_src/*.aux
 doc/LaTeX_src/*.synctex.gz
-
+doc/LaTeX_src/*.toc
 # Kile
 *.kilepr
 *.kilepr.gui

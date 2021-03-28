@@ -109,7 +109,7 @@ pipeline {
                     sh '''rsync -aze 'ssh -o StrictHostKeyChecking=no -o BatchMode=yes' \
                     --log-file=rsync-doc.log \
                     --delete \
-                    ${ARTIFACTS}/latex/ ${DEPLOY_HOST}:${DEPLOY_DOC_PATH}$/latex/{TAG_NAME:-${GIT_BRANCH#*/}}/'''
+                    ${ARTIFACTS}/latex/ ${DEPLOY_HOST}:${DEPLOY_DOC_PATH}/latex/${TAG_NAME:-${GIT_BRANCH#*/}}/'''
                 }
             }
             post {

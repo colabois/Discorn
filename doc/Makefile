@@ -4,3 +4,6 @@ sphinx:
 
 latex:
 	$(MAKE) -C LaTeX_src/ pdf
+clean:
+	$(MAKE) -C sphinx_src/ clean
+	$(MAKE) -C LaTeX_src/ clean
