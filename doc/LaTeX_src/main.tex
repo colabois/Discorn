@@ -57,10 +57,8 @@
         of free software. Discorn can be modded, and nobody will be banned by Discorn. Because Discorn is no more than a protocol.
     
     \section{Structure}
-        Discorn is organised around Guilds. A Guild is a network of people sharing a Blockchain, it is created by one individual that
-        can either claim its ownership or leave the Guild in anarchy. Being the owner of a Guild means having permission to promote
-        new administrators, creating discussion channels, choosing who can join the network, moderating the messages and tweak other parameters.
-        In an anarchist Guild, everyone has every right.
+        Discorn is organised around Chains. A Chain is a network of people sharing a Blockchain, it is created by one individual that claim its ownership. Being the owner of a Chain means having permission to promote
+        new administrators, choosing who can join the network, which guild will be hosted, tweak other parameters.
         
 
     \section{Blockchain}
@@ -226,7 +224,7 @@
                 \end{tabularx}
             
             \subsubsection{Pong: $P_{Flag} = 2$}
-                Respond a ping request from remote.\\
+                Respond to a ping request from remote.\\
                 Expected behaviour: None.\\
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
@@ -243,24 +241,34 @@
                     \hline Field & Type & Description & Length \\ \hline
                 \end{tabularx}
             
-            \subsubsection{Getguild: $P_{Flag} = 4$}
-                Initiate the Guild Challenge sequence.\\
-                \begin{tikzpicture}[blocknode/.style={rectangle, draw=black, thick, minimum size=7mm},
-                                floatingnode/.style={rectangle, minimum size=7mm}, node distance=2cm and 2cm]
-                \node[blocknode] (0-0) {Getguild};
-                \node[floatingnode] (1-0) [below= of 0-0] {};
-                \node[blocknode] (1-1) [right= of 1-0] {Salt};
-                \node[floatingnode] (0-1) [above= of 1-1] {};
-                \node[blocknode] (0-2) [right= of 0-1] {Hash};
-                \node[floatingnode] (1-2) [below= of 0-2] {};
-                \node[blocknode] (1-3) [right= of 1-2] {Success};
-                \node[floatingnode] (0-3) [above= of 1-3] {};
-                \node[floatingnode] (0-4) [right= of 0-3] {};
-                
-                \draw[thick,->] (0-0.south) -- (1-1.west) node[midway,sloped,anchor=north] {Getguild};
-                \draw[thick,->] (1-1.east) -- (0-2.south) node[midway,sloped,anchor=north] {Sendguildchallenge};
-            \end{tikzpicture}\\
-                Expected behaviour: None.\\
+            \subsubsection{Getchain: $P_{Flag} = 4$}
+                Initiate the Chain Challenge sequence.\\
+                The Chain Challenge sequence is designed to allow
+                peers to echange blockchain data safely,
+                even in a MITM scenario.\\
+                \begin{figure}[h]\centering
+                    \begin{tikzpicture}[blocknode/.style={rectangle, draw=black, thick, minimum size=7mm},
+                                    floatingnode/.style={rectangle, minimum size=7mm}, node distance=3cm and 1cm]
+                    \node[blocknode] (0-0) {Remote};
+                    \node[blocknode] (1-0) [below= of 0-0] {Local};
+                    \node[floatingnode] (1-1) [right= of 1-0] {};
+                    \node[floatingnode] (0-1) [above= of 1-1] {};
+                    \node[floatingnode] (0-2) [right= of 0-1] {};
+                    \node[floatingnode] (1-2) [below= of 0-2] {};
+                    \node[floatingnode] (1-3) [right= of 1-2] {};
+                    \node[floatingnode] (0-3) [above= of 1-3] {};
+                    \node[floatingnode] (0-4) [right= of 0-3] {};
+                    \node[floatingnode] (1-4) [below= of 0-4] {};
+                    
+                    \draw[thick,-] (0-0.east) -- (0-4.east) node[midway,sloped,anchor=north] {};
+                    \draw[thick,-] (1-0.east) -- (1-4.east) node[midway,sloped,anchor=north] {};
+                    \draw[thick, ->, dashed] (1-1.north) -- (0-1.south) node[midway,sloped,anchor=north, rotate=180] {Getchain};
+                    \draw[thick, ->, dashed] (0-2.south) -- (1-2.north) node[midway,sloped,anchor=north] {Send challenge (salt)};
+                    \draw[thick, ->, dashed] (1-3.north) -- (0-3.south) node[midway,sloped,anchor=north, rotate=180] {Solve challenge (Hash)};
+                    \draw[thick, ->, dashed] (0-4.south) -- (1-4.north) node[midway,sloped,anchor=north] {End challenge (success)};
+                    \end{tikzpicture}\caption{Chain Challenge sequence}\label{fig:GCSec}
+                \end{figure}
+                Expected behaviour: Send a Sendguildchallenge message.\\
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
@@ -268,4 +276,88 @@
                     \hline
                 \end{tabularx}
 
+            \subsubsection{Sendchainchallenge: $P_{Flag} = 5$}
+                Send a salt for the Chain Challenge sequence.\\
+                Expected behaviour: Send a Solvechainchallenge message with a hash of chain+salt\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Id & big-endian int & & 2 bytes \\
+                    \hline Salt & raw & Random data & 16 bytes \\
+                    \hline
+                \end{tabularx}
+            
+            \subsubsection{Solvechainchallenge: $P_{Flag} = 6$}
+                Send a hash of raw chain+salt from now on, the salted hash will be called RawChainChallenge\\
+                Expected behaviour: Send an Endchainchallenge message\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Id & big-endian int & & 2 bytes \\
+                    \hline Hash & cryptonote-fast-hash & rawchain+salt hash & 32 bytes \\
+                    \hline
+                \end{tabularx}
+            
+            \subsubsection{Endchainchallenge: $P_{Flag} = 7$}
+                Notify successful or failed challenge.\\
+                Expected behaviour : if successful, both Peers should now use the salted hash to reference the common Chain and every exchange about that chain should be AES encrypted with the raw chain hash (without salt) as a key.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Id & big-endian int & & 2 bytes \\
+                    \hline Success & big-endian int & 0 if successful & 1 byte \\
+                    \hline
+                \end{tabularx}
+            
+            \subsubsection{ChainData: $P_{Flag} = 8$}
+                Send an encrypted chain message.\\
+                Expected behaviour : Undefined.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Chain & RawChainChallenge& & 32 bytes \\
+                    \hline  & & Following data is AES encrypted & \\
+                    \hline $CP_{Flag}$ & big-endian int & Payload identifier & 2 bytes \\
+                    \hline Payload [Chain] & raw &  & \\
+                    \hline 
+                \end{tabularx}
+            
+            \subsubsection{Newhead [Chain]: $CP_{Flag} = 1$}
+                Notify remote of a new chain head. (Doesn't send the block, just height and hash)\\
+                Expected behaviour : None.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Chain & RawChainChallenge & & 32 bytes \\
+                    \hline  & & Following data is AES encrypted & \\
+                    \hline Height & big-endian int & New head's height & 4 bytes \\
+                    \hline Hash & cryptonote-slow-hash & New head's hash & 32 bytes\\
+                    \hline
+                \end{tabularx}
+
+            \subsubsection{Getblockheader [Chain]: $CP_{Flag} = 2$}
+                Notify remote of a new chain head. (Doesn't send the block, just height and hash)\\
+                Expected behaviour : Send a blockheader message.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Chain & RawChainChallenge & & 32 bytes \\
+                    \hline  & & Following data is AES encrypted & \\
+                    \hline Height & big-endian int & New head's height & 4 bytes \\
+                    \hline Hash & cryptonote-slow-hash & New head's hash & 32 bytes\\
+                    \hline
+                \end{tabularx}
+            
+            \subsubsection{Blockheader [Chain]: $CP_{Flag} = 3$}
+                Notify remote of a new chain head. (Doesn't send the block, just height and hash)\\
+                Expected behaviour : None.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Chain & RawChainChallenge & & 32 bytes \\
+                    \hline  & & Following data is AES encrypted & \\
+                    \hline Height & big-endian int & New head's height & 4 bytes \\
+                    \hline Hash & cryptonote-slow-hash & New head's hash & 32 bytes\\
+                    \hline
+                \end{tabularx}
 \end{document}

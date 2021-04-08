@@ -8,6 +8,7 @@ import os
 import time
 import string
 from merklelib import MerkleTree
+
 string
 
 
@@ -43,6 +44,7 @@ class Address:
     @property
     def raw(self):
         return base58.b58decode(self.data, base58.BITCOIN_ALPHABET)
+
 
 class SK:
     """Signing Key object"""
@@ -123,7 +125,6 @@ class VK:
     def raw(self):
         return self._vk.to_string()
 
-
     def from_raw(raw):
         """
         Decodes a raw Verifying key
@@ -132,8 +133,8 @@ class VK:
         :return: VK
         """
         return VK(ecdsa.VerifyingKey.from_string(raw,
-                                                curve=ecdsa.SECP256k1,
-                                                hashfunc=hashlib.sha256))
+                                                 curve=ecdsa.SECP256k1,
+                                                 hashfunc=hashlib.sha256))
 
 
 class Signature:
@@ -436,7 +437,7 @@ class BlockChain(Logger):
         # and check every other Corner
         res = block.previous_hash in self.blocks
         res = res and int.from_bytes(block.get_hash(), 'big') >= (
-            1 << (256 - block.difficulty))
+                1 << (256 - block.difficulty))
         return res
 
 
@@ -485,3 +486,5 @@ class Wallet(Logger):
         address = SK()
         self.addresses.append(address)
         self.debug(f"New address : {address.b58}")
+
+# TODO : Guilds are hosted on chains otherwise chains won't have enough participants to be viable.
