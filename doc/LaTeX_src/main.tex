@@ -156,11 +156,19 @@
             \hline Field & Type & Description & Length \\ \hline
             \hline Hash & cryptonote-fast-hash & Input transaction's hash & 32 bytes \\
             \hline Index & big-endian int & Index of the specific output in the transaction & 3 byte \\
-            \hline Payload & raw & & \\
             \hline 
             \end{tabularx}
-        
-        
+
+        \subsection{Output (Tx)}
+            Amounts are coded on 12 bytes, unit is set at $10^{12}$ \\
+            
+           \begin{tabularx}{\textwidth}{|l|l|X|l|}
+            \hline Field & Type & Description & Length \\ \hline
+            \hline Amount & big-endian int & Amount sent & 12 bytes \\
+            \hline Index & big-endian int & Index of the specific output in the transaction & 3 byte \\
+            \hline 
+            \end{tabularx}
+
         \subsection{Puzzles \& Solutions (Tx)}
            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
@@ -328,36 +336,48 @@
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
-                    \hline Chain & RawChainChallenge & & 32 bytes \\
-                    \hline  & & Following data is AES encrypted & \\
                     \hline Height & big-endian int & New head's height & 4 bytes \\
                     \hline Hash & cryptonote-slow-hash & New head's hash & 32 bytes\\
                     \hline
                 \end{tabularx}
 
             \subsubsection{Getblockheader [Chain]: $CP_{Flag} = 2$}
-                Notify remote of a new chain head. (Doesn't send the block, just height and hash)\\
+                Ask remote for the block header at given height.\\
                 Expected behaviour : Send a blockheader message.\\
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
-                    \hline Chain & RawChainChallenge & & 32 bytes \\
-                    \hline  & & Following data is AES encrypted & \\
                     \hline Height & big-endian int & New head's height & 4 bytes \\
-                    \hline Hash & cryptonote-slow-hash & New head's hash & 32 bytes\\
                     \hline
                 \end{tabularx}
             
             \subsubsection{Blockheader [Chain]: $CP_{Flag} = 3$}
-                Notify remote of a new chain head. (Doesn't send the block, just height and hash)\\
+                Sends a block header.\\
                 Expected behaviour : None.\\
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
-                    \hline Chain & RawChainChallenge & & 32 bytes \\
-                    \hline  & & Following data is AES encrypted & \\
+                    \hline Block header & Block header &  & 80 bytes \\
+                    \hline
+                \end{tabularx}
+
+            \subsubsection{Getblockbody [Chain]: $CP_{Flag} = 4$}
+                Ask remote for the block body at given height.\\
+                Expected behaviour : Send a blockbody message.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
                     \hline Height & big-endian int & New head's height & 4 bytes \\
-                    \hline Hash & cryptonote-slow-hash & New head's hash & 32 bytes\\
+                    \hline
+                \end{tabularx}
+            
+            \subsubsection{Blockbody [Chain]: $CP_{Flag} = 5$}
+                Sends a block body.\\
+                Expected behaviour : None.\\
+                
+                \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
+                    \hline Field & Type & Description & Length \\ \hline
+                    \hline Block body & Block body& & \\
                     \hline
                 \end{tabularx}
 \end{document}

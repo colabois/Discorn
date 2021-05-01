@@ -79,7 +79,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
-    apply_stylesheet(app, theme='dark_red.xml')
+    apply_stylesheet(app, theme='dark_teal.xml')
     window = MainWindow()
     window.show()
     with loop:
