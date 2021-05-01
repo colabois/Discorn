@@ -107,8 +107,8 @@
             \hline Version & big-endian int & Block version & 1 byte \\
             \hline Timestamp & big-endian int & & 4 bytes\\
             \hline Corner count & big-endian int & Number of Corner included & 3 bytes\\
-            \hline Merkle root & cryptonote-fast-hash & Root hash of Corners Merkle tree & 32 bytes\\
-            \hline Previous hash & cryptonote-slow-hash & Hash of previous block & 32 bytes\\
+            \hline Merkle root & cryptonight-fast-hash & Root hash of Corners Merkle tree & 32 bytes\\
+            \hline Previous hash & cryptonight-slow-hash & Hash of previous block & 32 bytes\\
             \hline Difficulty & big-endian int & The calculated difficulty target being used for this block & 4 bytes\\
             \hline Nonce & raw & To allow variations of the header and compute different hashes & 4 bytes \\
             \hline
@@ -119,7 +119,7 @@
         
         
         \subsection{Corner}
-           \begin{tabularx}{\textwidth}{|l|l|X|l|}
+            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
             \hline Payload length & big-endian int &  & 3 bytes \\
             \hline Payload flag ($P_{Flag}$) & big-endian int &  & 1 byte \\
@@ -145,16 +145,16 @@
                 \begin{tabularx}{\textwidth}{|l|l|X|l|}
                 \hline Field & Type & Description & Length \\ \hline
                 \hline Version & big-endian int & Event version & 1 byte \\
-                \hline Hash & cryptonote-fast-hash & Event hash as in the event database & 32 Bytes\\
+                \hline Hash & cryptonight-fast-hash & Event hash as in the event database & 32 Bytes\\
                 \hline Authorization & Auth & Proof that the Event is legitimate & \\
                 \hline
                 \end{tabularx}\\
         
         
         \subsection{Input (Tx)}
-           \begin{tabularx}{\textwidth}{|l|l|X|l|}
+            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
-            \hline Hash & cryptonote-fast-hash & Input transaction's hash & 32 bytes \\
+            \hline Hash & cryptonight-fast-hash & Input transaction's hash & 32 bytes \\
             \hline Index & big-endian int & Index of the specific output in the transaction & 3 byte \\
             \hline 
             \end{tabularx}
@@ -162,15 +162,15 @@
         \subsection{Output (Tx)}
             Amounts are coded on 12 bytes, unit is set at $10^{12}$ \\
             
-           \begin{tabularx}{\textwidth}{|l|l|X|l|}
+            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
             \hline Amount & big-endian int & Amount sent & 12 bytes \\
-            \hline Index & big-endian int & Index of the specific output in the transaction & 3 byte \\
+            \hline Puzzle & Puzzle & Puzzle that protects the funds & \\
             \hline 
             \end{tabularx}
 
         \subsection{Puzzles \& Solutions (Tx)}
-           \begin{tabularx}{\textwidth}{|l|l|X|l|}
+            \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
             \hline Payload length & big-endian int &  & 3 bytes \\
             \hline Payload flag ($P_{Flag}$) & big-endian int &  & 1 byte \\
@@ -178,12 +178,13 @@
             \hline
             \end{tabularx}
             \subsubsection{Single: $P_{flag} = 0$}
+                Simple, single address.
                 \begin{itemize}
                  \item Puzzle:\\
                     
                     \begin{tabularx}{\textwidth}{|l|l|X|l|}
                         \hline Field & Type & Description & Length \\ \hline
-                        \hline Recipient address & Single-address &  & 3 bytes \\
+                        \hline VK hash & cryptonight-fast-hash & Hash of the recipient public key. & 3 bytes \\
                         \hline
                     \end{tabularx}
                  \item Solution:\\
@@ -195,6 +196,12 @@
                         \hline
                     \end{tabularx}
                 \end{itemize}
+        
+        \subsection{Address}
+            An address is a ``safe for human'' representation of a Puzzle.
+            It is calculated as follows:
+            
+            $$\text{Address} = \text{base58}(\text{Puzzle + cryptonight-fast-hash}(\text{Puzzle})\text{[:4]})$$
 
                 
 
@@ -210,7 +217,7 @@
             \end{tabularx}
             \subsubsection{IPV4}
                 Connections are made over TCP.\\
-                Messages are sliced in chunks of length CHUNK\_SIZE$=1024$.\\
+                Messages are sliced in chunks of length CHUNK\_SIZE $=1024$.\\
                 Chunks are sent one after the other over the TCP connection following this pattern:
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
@@ -302,7 +309,7 @@
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
                     \hline Id & big-endian int & & 2 bytes \\
-                    \hline Hash & cryptonote-fast-hash & rawchain+salt hash & 32 bytes \\
+                    \hline Hash & cryptonight-fast-hash & rawchain+salt hash & 32 bytes \\
                     \hline
                 \end{tabularx}
             
@@ -337,7 +344,7 @@
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
                     \hline Height & big-endian int & New head's height & 4 bytes \\
-                    \hline Hash & cryptonote-slow-hash & New head's hash & 32 bytes\\
+                    \hline Hash & cryptonight-slow-hash & New head's hash & 32 bytes\\
                     \hline
                 \end{tabularx}
 

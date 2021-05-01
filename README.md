@@ -1,6 +1,7 @@
-# Discorn Project
------------------
 ![Build status](https://moriya.zapto.org/jenkins/job/Discorn%20Github/job/Discorn/job/master/badge/icon)
+# Discorn Project
+-----------------------------------------------------------
+
 Discorn is an **encrypted and decentralized chatting** protocol based on cryptocurrencies.
 
 # Table of contents :
