@@ -1,14 +1,75 @@
 # Discorn Project
 -----------------
-Discorn is an **encrypted and decentralized chatting** protocol based on cryptocurrencies. test
+![Build status](https://moriya.zapto.org/jenkins/job/Discorn%20Github/job/Discorn/job/master/badge/icon)
+Discorn is an **encrypted and decentralized chatting** protocol based on cryptocurrencies.
 
 # Table of contents :
-* [Why ?](#Why)
-* [How ?](#How)
+* [Usefull Links](#Links)
+* [Contributing](#Contributing)
 * [Using Discorn](#Using)
 * [Python implementation](#PyImplementation)
-    * Installation
-    * Qt Gui
+    * [Installation](#PyInstall)
+    * [Qt Gui](#PyQtGui)
+* [Why ?](#Why)
+* [How ?](#How)
+
+# Usefull links <a name="user-content-Links"></a>
+--------------
+* [Latest Discorn Library documentation](https://moriya.zapto.org/docs/discorn/master/)
+* [Latest Discorn Protocol documentation](https://moriya.zapto.org/docs/discorn/latex/master/main.pdf)
+# Contributing <a name="user-content-Contributing"></a>
+--------------
+Contributions are made via Github issues and pull requests. [Gitsokyo](https://moriya.zapto.org/gitsokyo/Discorn/Discorn) is now only a mirror.
+
+Fork the project on github then clone your fork.
+The project runs Python 3.8.
+Dependencies are managed using **Pipenv**.
+
+Developpement environement :
+``` bash
+~ git clone <fork url>
+~ cd Discorn
+~ pipenv sync --dev
+```
+
+Building Library Documentation (results are in doc/sphinx_src/build/html/)
+``` bash
+~ make sphinx
+```
+
+
+Building Protocol Documentation (requires pdflatex, results are in doc/sphinx_src/build/html/)
+``` bash
+~ make latex
+```
+
+Building the UI files (GUI)
+``` bash
+~ make ui
+```
+
+# Using Discorn <a name="user-content-Using"></a>
+---------------
+Discorn is still in Developpement phase. It is absolutely not usable in any way.
+
+# Python Implementation <a name="user-content-PyImplementation"></a>
+----------------------
+
+## Installation (Pipenv) <a name="user-content-PyInstall"></a>
+
+``` bash
+~ git clone https://moriya.zapto.org/gitsokyo/Discorn/Discorn.git
+~ cd Discorn
+~ pipenv install
+```
+
+## Qt Gui <a name="user-content-PyQtGui"></a>
+``` bash
+~ make gui && python -m Gui.main
+```
+
+Here's how it looks so far.  
+![GUI Screenshot](MD-Assets/Wallet.png)
 
 # Why ? <a name="user-content-Why"></a>
 -------
@@ -45,28 +106,3 @@ Discorn will be organised in **Guilds**.
 A Guild is either owned by someone or is fully decentralized.
 To each Guild is attached a **Blockchain** and **Cryptocurrency** and a **Database of events**.
 The Blockchain's proof of work algorithm is Cryptonight, as we believe cpu-mining is what we should aim for.
-
-
-# Using Discorn <a name="user-content-Using"></a>
----------------
-Discorn is still in Developpement phase. It is absolutely not usable in any way.
-
-# Python Implementation <a name="user-content-PyImplementation"></a>
-----------------------
-
-## Installation (Pipenv)
-
-``` bash
-~ git clone https://moriya.zapto.org/gitsokyo/Discorn/Discorn.git
-~ cd Discorn
-~ pipenv install
-```
-
-## Qt Gui
-``` bash
-~ python -m Gui.main
-```
-
-Here's how it looks so far.  
-![GUI Screenshot](MD-Assets/Wallet.png)
-
