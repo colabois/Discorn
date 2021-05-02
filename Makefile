@@ -1,11 +1,15 @@
 PIPENV = pipenv
-all: ui
+all: discorn
 
-ui:
-	$(MAKE) -C Gui/ _ui
+discorn:
+	$(MAKE) -C src/discorn all
 
-clean:
-	$(MAKE) -C Gui/ clean
+clean: clean_doc clean_discorn
+	
+clean_discorn:
+	$(MAKE) -C src/discorn clean
+
+clean_doc:
 	$(MAKE) -C doc/ clean
 
 docs: sphinx latex

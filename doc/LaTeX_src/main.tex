@@ -53,7 +53,7 @@
          We have been lead towards Matrix when our first ideas of Discorn emerged and yes, it does allow for chatting channels, VoIP and some kind of Guildish features.
          However we believe that we can do better both in usability and privacy.
         \end{itemize}
-        The end-user, when using Discorn, not only helps claim a future for Humanity and get his privacy back. He also wins the freedom
+        The end-users, when using Discorn, not only helps claim a future for Humanity and get their privacy back. They also win the freedom
         of free software. Discorn can be modded, and nobody will be banned by Discorn. Because Discorn is no more than a protocol.
     
     \section{Structure}
@@ -184,7 +184,7 @@
                     
                     \begin{tabularx}{\textwidth}{|l|l|X|l|}
                         \hline Field & Type & Description & Length \\ \hline
-                        \hline VK hash & cryptonight-fast-hash & Hash of the recipient public key. & 3 bytes \\
+                        \hline VK hash & cryptonight-fast-hash & Hash of the recipient public key. & 32 bytes \\
                         \hline
                     \end{tabularx}
                  \item Solution:\\
@@ -201,10 +201,40 @@
             An address is a ``safe for human'' representation of a Puzzle.
             It is calculated as follows:
             
-            $$\text{Address} = \text{base58}(\text{Puzzle + cryptonight-fast-hash}(\text{Puzzle})\text{[:4]})$$
+            $$\text{Address} = \text{base58}(\text{Puzzle + cryptonight-fast-hash}(\text{Puzzle})\text{[:4(bytes)]})$$
 
                 
-
+    \section{Event Database}
+        \subsection{Event}
+            Event structure is as follows:\\
+            \begin{tabularx}{\textwidth}{|l|l|X|l|}
+                \hline Field & Type & Description & Length \\ \hline
+                \hline Version & big-endian int & Event version & 2 bytes \\
+                \hline $P_{flag}$ & big-endian int & Payload identifier & 2 bytes \\
+                \hline Payload & raw &  & \\
+                \hline Veryfing key & VK & Key used for signing Payload & \\
+                \hline Payload Signature & Signature & Signature of the Payload & \\
+                \hline $A_{Flag}$ & big-endian int & & 2 bytes\\
+                \hline Authority proof & Authority & & 2 bytes\\
+                \hline
+            \end{tabularx}
+                \subsubsection{Message [Payload]: $P_{flag} = 0$}
+                \subsubsection{Proof of Work [Authority]: $A_{flag} = 0$}
+                    \begin{tabularx}{\textwidth}{|l|l|X|l|}
+                        \hline Field & Type & Description & Length \\ \hline
+                        \hline Target difficulty & big-endian int &  & 4 bytes \\
+                        \hline Block hash & cryptonight-slow-hash & ($\sim$ Last) block hash & 32 bytes \\
+                        \hline Block height & big-endian int & & 4 bytes \\
+                        \hline Nonce & raw & & 32 bytes \\
+                        \hline
+                    \end{tabularx}
+                \subsubsection{Nomination [Authority]: $A_{flag} = 1$}
+                    \begin{tabularx}{\textwidth}{|l|l|X|l|}
+                        \hline Field & Type & Description & Length \\ \hline
+                        \hline Signing VK & VK &  & 64 bytes \\
+                        \hline Signature & Signature & & \\
+                        \hline
+                    \end{tabularx}
     \section{Networking}
         \subsection{Sending data}
             Message structure is as follows :\\
@@ -222,7 +252,7 @@
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
-                    \hline Length & big-endian int & FFFF if not final, Chunk length otherwise & 2 bytes \\
+                    \hline Length & big-endian int & 0xFFFF if not final, Chunk length otherwise & 2 bytes \\
                     \hline Data & raw & Chunk data & \\
                     \hline
                 \end{tabularx}

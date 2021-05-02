@@ -129,8 +129,7 @@ dmypy.json
 .pyre/
 
 # Compiled .ui files
-*/ui/*.py
-
+**/ui/*.py
 # LaTeX
 doc/LaTeX_src/*.pdf
 doc/LaTeX_src/*.aux

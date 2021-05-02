@@ -1,4 +1,3 @@
-tests/
 .gitignore
 .releaseignore
 Dockerfile

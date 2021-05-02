@@ -79,7 +79,7 @@ pipeline {
 
         stage('Run Tests') { 
             steps {
-                sh '''pipenv run python -m pytest -p no:warnings --junit-xml test-reports/results.xml'''
+                sh '''cd src/discorn && pipenv run python -m pytest -p no:warnings --junit-xml ../../test-reports/results.xml'''
             }
             post {
                 always {
