@@ -2,7 +2,7 @@ PIPENV = pipenv
 all: discorn
 
 discorn:
-	$(MAKE) -C src/discorn all
+	$(PIPENV) run $(MAKE) -C src/discorn all
 
 clean: clean_doc clean_discorn
 	
