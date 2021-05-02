@@ -2,31 +2,31 @@
 # Discorn Project
 -----------------------------------------------------------
 
-Discorn is an **encrypted and decentralized chatting** protocol based on cryptocurrencies.
+Discorn is an **encrypted and decentralized chatting protocol** based on cryptocurrencies.
 
 # Table of contents :
-* [Usefull Links](#Links)
+* [Useful Links](#Links)
 * [Contributing](#Contributing)
 * [Using Discorn](#Using)
 * [Python implementation](#PyImplementation)
     * [Installation](#PyInstall)
     * [Qt Gui](#PyQtGui)
-* [Why ?](#Why)
-* [How ?](#How)
+* [Why?](#Why)
+* [How?](#How)
 
-# Usefull links <a name="user-content-Links"></a>
+# Useful links <a name="user-content-Links"></a>
 --------------
 * [Latest Discorn Library documentation](https://moriya.zapto.org/docs/discorn/master/)
 * [Latest Discorn Protocol documentation](https://moriya.zapto.org/docs/discorn/latex/master/main.pdf)
 # Contributing <a name="user-content-Contributing"></a>
 --------------
-Contributions are made via Github issues and pull requests. [Gitsokyo](https://moriya.zapto.org/gitsokyo/Discorn/Discorn) is now only a mirror.
+Contributions are made via GitHub issues and pull requests. [Gitsokyo](https://moriya.zapto.org/gitsokyo/Discorn/Discorn) is now only a mirror.
 
 Fork the project on github then clone your fork.
 The project runs Python 3.8.
 Dependencies are managed using **Pipenv**.
 
-Developpement environement :
+Development environement :
 ``` bash
 ~ git clone <fork url>
 ~ cd Discorn
@@ -72,34 +72,34 @@ Discorn is still in Developpement phase. It is absolutely not usable in any way.
 Here's how it looks so far.  
 ![GUI Screenshot](MD-Assets/Wallet.png)
 
-# Why ? <a name="user-content-Why"></a>
+# Why? <a name="user-content-Why"></a>
 -------
-Computers bring with them a brand new problem : **It has become hard to get forgotten.**  
+Computers bring with them a brand new problem: **It has become hard to get forgotten.**  
 Everything one shares with a company over the internet is potentially stored forever.  
 Malicious entities such as potential future governments might use such data against part of the population and **endanger democracy**.
 
 We defend a **basic right to privacy** and we are going to claim it no matter what thanks to **cryptography**.
 
 Encrypted and Federated chatting apps exists. The main example is obviously [Matrix](https://matrix.org/)  
-However, Federated software is flawed : They are instance based, and running a personnal instance is hard, requires perfoming hardware and requires registering a Domain Name.
+However, Federated software is flawed: They are instance based, and running a personnal instance is hard, requires perfoming hardware and requires registering a Domain Name.
 About matrix, it leaks several features that makes private alternatives more interesting.
 
 But why Federated ? Let's go fully decentralized.  
 
 **Bitcoin** shows a new way of creating software over the Internet, and beyond.
-It's fundamentals are :
+Its fundamentals are:
 
-* A decentralized consensus (about order of events and current time)
+* A decentralized consensus (about order of events and current time),
 * Incentivising node owners to help secure the network by taking part in the vote.
 
 Such a system can be used for many applications and it has been.
 
-What does the end user win when using Discorn ?  
+What does the end user win when using Discorn?  
 Privacy is the main one.
 Discorn is mainly inspired by Discord, as we find that Discord is more or less the way chatting app should look like.
-But Discorn is **open-source** and **decentralized** this means that people will be able to mod Discorn as they wish with no fear of getting banned, and potentially will have more features than Discord.
+But Discorn is **open-source** and **decentralized**, this means that people will be able to modify Discorn as they wish with no fear of getting banned, and potentially will have more features than Discord.
 
-# How ? <a name="user-content-How"></a>
+# How? <a name="user-content-How"></a>
 -------
 Discorn is inspired by Bitcoin, Cryptonote and Discord, so we will use concepts from them.
 
