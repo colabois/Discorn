@@ -2,3 +2,4 @@
 .releaseignore
 Dockerfile
 Jenkinsfile
+.git

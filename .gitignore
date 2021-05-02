@@ -138,3 +138,5 @@ doc/LaTeX_src/*.toc
 # Kile
 *.kilepr
 *.kilepr.gui
+# PyCharm
+.idea
