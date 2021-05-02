@@ -1,4 +1,4 @@
-PYUIC = pipenv run pyside2-uic
+PYUIC = pyside2-uic
 UI = $(wildcard *.ui)
 
 %.py : %.ui %.py.sh
