@@ -1,4 +1,4 @@
-![Build status](https://moriya.zapto.org/jenkins/job/Discorn%20Github/job/Discorn/job/master/badge/icon)
+![Build status](https://jenkins.colabois.fr/job/Discorn%20Github/job/Discorn/job/master/badge/icon)
 # Discorn Project
 -----------------------------------------------------------
 

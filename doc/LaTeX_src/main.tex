@@ -192,7 +192,7 @@
                     \begin{tabularx}{\textwidth}{|l|l|X|l|}
                         \hline Field & Type & Description & Length \\ \hline
                         \hline Verifying key & VK &  & 64 bytes \\
-                        \hline Tx Signature & Signature & Signature of the whole transaction without the Solutions part & 1 byte \\
+                        \hline Tx Signature & Signature & Signature of the whole transaction without the Solutions part & 128 byte \\
                         \hline
                     \end{tabularx}
                 \end{itemize}
@@ -212,8 +212,8 @@
                 \hline Version & big-endian int & Event version & 2 bytes \\
                 \hline $P_{flag}$ & big-endian int & Payload identifier & 2 bytes \\
                 \hline Payload & raw &  & \\
-                \hline Veryfing key & VK & Key used for signing Payload & \\
-                \hline Payload Signature & Signature & Signature of the Payload & \\
+                \hline Veryfing key & VK & Key used for signing Payload & 64 bytes \\
+                \hline Payload Signature & Signature & Signature of the Payload & 128 bytes \\
                 \hline $A_{Flag}$ & big-endian int & & 2 bytes\\
                 \hline Authority proof & Authority & & 2 bytes\\
                 \hline
