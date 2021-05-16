@@ -1,25 +1,16 @@
-![Build status](https://jenkins.colabois.fr/job/Discorn%20Github/job/Discorn/job/master/badge/icon)
 # Discorn Project
------------------------------------------------------------
+
+![Build status](https://jenkins.colabois.fr/job/Discorn%20Github/job/Discorn/job/master/badge/icon)
 
 Discorn is an **encrypted and decentralized chatting protocol** based on cryptocurrencies.
 
-# Table of contents :
-* [Useful Links](#Links)
-* [Contributing](#Contributing)
-* [Using Discorn](#Using)
-* [Python implementation](#PyImplementation)
-    * [Installation](#PyInstall)
-    * [Qt Gui](#PyQtGui)
-* [Why?](#Why)
-* [How?](#How)
+# Useful links
 
-# Useful links <a name="user-content-Links"></a>
---------------
 * [Latest Discorn Library documentation](https://moriya.zapto.org/docs/discorn/master/)
 * [Latest Discorn Protocol documentation](https://moriya.zapto.org/docs/discorn/latex/master/main.pdf)
-# Contributing <a name="user-content-Contributing"></a>
---------------
+
+# Contributing
+
 Contributions are made via GitHub issues and pull requests. [Gitsokyo](https://moriya.zapto.org/gitsokyo/Discorn/Discorn) is now only a mirror.
 
 Fork the project on github then clone your fork.
@@ -27,6 +18,7 @@ The project runs Python 3.8.
 Dependencies are managed using **Pipenv**.
 
 Development environement :
+
 ``` bash
 ~ git clone <fork url>
 ~ cd Discorn
@@ -34,29 +26,31 @@ Development environement :
 ```
 
 Building Library Documentation (results are in doc/sphinx_src/build/html/)
+
 ``` bash
 ~ make sphinx
 ```
 
 
 Building Protocol Documentation (requires pdflatex, results are in doc/sphinx_src/build/html/)
+
 ``` bash
 ~ make latex
 ```
 
 Building the UI files (GUI)
+
 ``` bash
 ~ make ui
 ```
 
-# Using Discorn <a name="user-content-Using"></a>
----------------
+# Using Discorn
+
 Discorn is still in Developpement phase. It is absolutely not usable in any way.
 
-# Python Implementation <a name="user-content-PyImplementation"></a>
-----------------------
+# Python Implementation
 
-## Installation (Pipenv) <a name="user-content-PyInstall"></a>
+## Installation (Pipenv)
 
 ``` bash
 ~ git clone https://moriya.zapto.org/gitsokyo/Discorn/Discorn.git
@@ -64,7 +58,8 @@ Discorn is still in Developpement phase. It is absolutely not usable in any way.
 ~ pipenv install
 ```
 
-## Qt Gui <a name="user-content-PyQtGui"></a>
+## Qt Gui
+
 ``` bash
 ~ make gui && python -m Gui.main
 ```
@@ -72,8 +67,8 @@ Discorn is still in Developpement phase. It is absolutely not usable in any way.
 Here's how it looks so far.  
 ![GUI Screenshot](MD-Assets/Wallet.png)
 
-# Why? <a name="user-content-Why"></a>
--------
+# Why?
+
 Computers bring with them a brand new problem: **It has become hard to get forgotten.**  
 Everything one shares with a company over the internet is potentially stored forever.  
 Malicious entities such as potential future governments might use such data against part of the population and **endanger democracy**.
@@ -99,8 +94,8 @@ Privacy is the main one.
 Discorn is mainly inspired by Discord, as we find that Discord is more or less the way chatting app should look like.
 But Discorn is **open-source** and **decentralized**, this means that people will be able to modify Discorn as they wish with no fear of getting banned, and potentially will have more features than Discord.
 
-# How? <a name="user-content-How"></a>
--------
+# How?
+
 Discorn is inspired by Bitcoin, Cryptonote and Discord, so we will use concepts from them.
 
 Discorn will be organised in **Guilds**.  
