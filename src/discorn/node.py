@@ -8,7 +8,7 @@ import collections
 class Node(Logger):
     def __init__(self, name='Node'):
         super().__init__(name)
-        self.connect = ['192.168.0.12:8888', '192.168.0.14:8888']
+        self.connect = ['127.0.0.1:8888']
         self.peers = {}
         self.guilds = {}
         self.last_id = 0
@@ -35,7 +35,7 @@ class Node(Logger):
             await asyncio.sleep(60)
 
     async def listen(self):
-        self.server = await asyncio.start_server(self.inbound, '0.0.0.0', 8888)
+        self.server = await asyncio.start_server(self.inbound, '0.0.0.0', 8889)
         addr = self.server.sockets[0].getsockname()
         self.log(f"Listening on {addr}")
         async with self.server:
@@ -218,8 +218,12 @@ class Peer(Logger):
         self.log(self.guilds)
 
 
-if __name__ == '__main__':
+def main():
     node = Node()
     g = blockchain.Guild()
     node.guilds.update({g.raw: g})
     node.run()
+
+
+if __name__ == '__main__':
+    main()

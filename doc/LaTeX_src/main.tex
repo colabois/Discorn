@@ -98,7 +98,7 @@
                 &\text{We can express the next difficulty with ${\Delta t}_{target}$ and $k$}\\
                 &N = \frac{k2^{d_{next}}}{{\Delta t}_{target}}\\
                 &\Leftrightarrow 2^{d_{next}} = \frac{N{\Delta t}_{target}}{k}\\
-                &\Leftrightarrow d_{next} = \left\lfloor\log_2\left(\frac{{\Delta t}_{target}}{k}\right)\right\rfloor
+                &\Leftrightarrow d_{next} = \left\lfloor\log_2\left(\frac{N{\Delta t}_{target}}{k}\right)\right\rfloor
             \end {align*}\\
             
             
@@ -112,8 +112,7 @@
             \hline Difficulty & big-endian int & The calculated difficulty target being used for this block & 4 bytes\\
             \hline Nonce & raw & To allow variations of the header and compute different hashes & 4 bytes \\
             \hline
-            \hline Coinbase & Corner & Special Corner that has outputs without inputs & \\
-            \hline Corners & Corner list & Corners one after the other & \\
+            \hline Corners & Corner list & Corners one after the other (Coinbase at index 0) & \\
             \hline
             \end{tabularx}
         
@@ -173,11 +172,11 @@
             \begin{tabularx}{\textwidth}{|l|l|X|l|}
             \hline Field & Type & Description & Length \\ \hline
             \hline Payload length & big-endian int &  & 3 bytes \\
-            \hline Payload flag ($P_{Flag}$) & big-endian int &  & 1 byte \\
+            \hline Puzzle flag (${Pz}_{Flag}$) & big-endian int &  & 1 byte \\
             \hline Payload & raw & & \\
             \hline
             \end{tabularx}
-            \subsubsection{Single: $P_{flag} = 0$}
+            \subsubsection{Single: ${Pz}_{flag} = 0$}
                 Simple, single address.
                 \begin{itemize}
                  \item Puzzle:\\
@@ -414,6 +413,8 @@
                 
                 \noindent\begin{tabularx}{\textwidth}{|l|l|X|l|}
                     \hline Field & Type & Description & Length \\ \hline
+                    \hline Block height & big-endian int & & 4 bytes \\
+                    \hline Block hash & cryptonight-slow-hash & & 32 bytes\\
                     \hline Block body & Block body& & \\
                     \hline
                 \end{tabularx}
