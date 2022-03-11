@@ -77,7 +77,7 @@ We defend a **basic right to privacy** and we are going to claim it no matter wh
 
 Encrypted and Federated chatting apps exists. The main example is obviously [Matrix](https://matrix.org/)  
 However, Federated software is flawed: They are instance based, and running a personnal instance is hard, requires perfoming hardware and requires registering a Domain Name.
-About matrix, it leaks several features that makes private alternatives more interesting.
+About matrix, it lacks several features that makes private alternatives more interesting.
 
 But why Federated ? Let's go fully decentralized.  
 
