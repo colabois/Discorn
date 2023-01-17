@@ -1,16 +1,16 @@
 PIPENV = pipenv
-all: discorn
+all: Corner
 
 
-discorn:
-	$(PIPENV) run $(MAKE) -C src/discorn all
+Corner:
+	$(PIPENV) run $(MAKE) -C corner all
 
 
-clean: clean_doc clean_discorn
+clean: clean_doc clean_corner
 
 
-clean_discorn:
-	$(MAKE) -C src/discorn clean
+clean_corner:
+	$(MAKE) -C corner clean
 
 
 clean_doc:

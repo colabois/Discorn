@@ -7,8 +7,8 @@ pipeline {
     environment {
         SPHINXOPTS = '-w sphinx-build.log'
         DEPLOY_HOST = 'docs@moriya.zapto.org'
-        WEBSITE = 'https://moriya.zapto.org'
-        PROJECT_NAME = 'discorn'
+        WEBSITE = 'https://colabois.fr'
+        PROJECT_NAME = 'corner'
         DOC_PATH = "/docs/${env.PROJECT_NAME}/"
         REL_PATH = "/releases/${env.PROJECT_NAME}/"
         DEPLOY_DOC_PATH = "www${env.DOC_PATH}"
@@ -79,7 +79,7 @@ pipeline {
 
         stage('Run Tests') { 
             steps {
-                sh '''cd src/discorn && pipenv run python -m pytest -p no:warnings --junit-xml ../../test-reports/results.xml'''
+                sh '''pipenv run python -m pytest -p no:warnings --junit-xml ../../test-reports/results.xml'''
             }
             post {
                 always {
@@ -91,8 +91,8 @@ pipeline {
         stage('Deploy Documentation') {
             when {
                 anyOf {
-                    branch 'stable'
-                    branch 'master'
+//                     branch 'stable'
+//                     branch 'master'
                     buildingTag()
                 }
             }
@@ -122,8 +122,8 @@ pipeline {
         stage('Deploy Release Files') {
             when {
                 anyOf {
-                    branch 'stable'
-                    branch 'master'
+//                     branch 'stable'
+//                     branch 'master'
                     buildingTag()
                 }
             }
