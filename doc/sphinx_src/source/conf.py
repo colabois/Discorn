@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../../src/discorn'))
+sys.path.insert(0, os.path.abspath('../../../corner'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'Discorn'
-copyright = '2021, Suwako Moriya'
+project = 'Corner'
+copyright = '2023, Suwako Moriya'
 author = 'Suwako Moriya'
 
 # The full version, including alpha/beta/rc tags
