@@ -135,6 +135,7 @@ doc/LaTeX_src/*.pdf
 doc/LaTeX_src/*.aux
 doc/LaTeX_src/*.synctex.gz
 doc/LaTeX_src/*.toc
+doc/LaTeX_src/*.out
 # Kile
 *.kilepr
 *.kilepr.gui
